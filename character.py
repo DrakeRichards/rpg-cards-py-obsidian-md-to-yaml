@@ -1,5 +1,4 @@
 from dataclasses import dataclass, asdict
-
 import obsidian_tools
 
 
@@ -40,7 +39,8 @@ class Character:
     groupRank: str = ''
 
 def parse(text: str) -> dict[str, str]:
-    """Convert a markdown-formatted string into a Character object. Used to export to other programs.
+    """
+    Convert a markdown-formatted string into a Character object. Used to export to other programs.
 
     Args:
         text (str): 
@@ -52,7 +52,7 @@ def parse(text: str) -> dict[str, str]:
         str: _description_
     """
     # Parse string to object
-    page = obsidian_tools.Page(text)
+    page = obsidian_tools.ObsidianPageData(text)
 
     # The name of the character should be H1, which is the key of the top-level element.
     name: str = list(page.content.keys())[0]
@@ -91,14 +91,3 @@ def parse(text: str) -> dict[str, str]:
     )
 
     return asdict(char)
-
-
-"""
-# File contents to string
-text = Path(filepath).read_text()
-
-# Export to a YAML file.
-outfile: str = f"./data/{char.name}.yaml"
-with open(outfile, mode="wt", encoding="utf-8") as file:
-    yaml.dump(asdict(char), file)
-"""
