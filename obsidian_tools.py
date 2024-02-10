@@ -51,7 +51,7 @@ class Page:
         return data
 
     def __dataview_fields(self) -> dict[str, list[str]]:
-        dv_fields_pattern: re.Pattern[str] = re.compile(r"(?:[(\[]|^- )(?P<dvKey>[\w ]+):: (?:\[{0,2})(?:\w*\|)?(?P<dvValue>[\w -]*?)(?:[)\]]|$|\n)")
+        dv_fields_pattern: re.Pattern[str] = re.compile(r"(?:[(\[]|^- )(?P<dvKey>[\w ]+):: (?:\[{0,2})(?:\w*\|)?(?P<dvValue>[\w \-/,]*?)(?:[)\]]|$|\n)")
         matches: list[re.Match[str]] = list(dv_fields_pattern.finditer(self.text))
         dv_fields: dict[str, list[str]] = {}
         if not matches:
