@@ -1,0 +1,3 @@
+[submodule "rpg-cards-typst-templates"]
+	path = schemas/rpg-cards-typst-templates
+	url = https://github.com/DrakeRichards/rpg-cards-typst-templates.git
