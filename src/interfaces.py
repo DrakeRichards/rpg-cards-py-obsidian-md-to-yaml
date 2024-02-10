@@ -2,7 +2,7 @@
 Interface classes to export to other programs.
 """
 
-from character import Character
+from src.character import Character
 from dataclasses import dataclass
 
 @dataclass

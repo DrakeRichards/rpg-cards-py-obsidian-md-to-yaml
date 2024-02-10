@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-import obsidian_tools
+import src.obsidian_tools as obsidian_tools
 
 
 @dataclass

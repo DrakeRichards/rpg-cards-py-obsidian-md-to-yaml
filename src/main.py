@@ -1,7 +1,6 @@
-import character as character
+import src.character as character
 from yaml import dump
 from pathlib import Path
-from dataclasses import asdict
 import argparse
 
 parser = argparse.ArgumentParser(
