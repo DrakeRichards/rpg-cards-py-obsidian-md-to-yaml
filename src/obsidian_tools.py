@@ -77,7 +77,7 @@ def get_frontmatter(text) -> dict[str, str]:
 
 def get_dataview_fields(text) -> dict[str, list[str]]:
     dv_fields_pattern: re.Pattern[str] = re.compile(
-        r"(?:[(\[]|^- )(?P<dvKey>[\w ]+):: (?:\[{0,2})(?:\w*\|)?(?P<dvValue>[\w \-/,]*?)(?:[)\]]|$|\n)"
+        r"(?:[(\[]|^- )(?P<dvKey>[\w ]+):: (?:\[{0,2})(?:\w*\|)?(?P<dvValue>[^\[\]]*?)(?:[)\]]|$|\n)"
     )
     matches: list[re.Match[str]] = list(dv_fields_pattern.finditer(text))
     dv_fields: dict[str, list[str]] = {}

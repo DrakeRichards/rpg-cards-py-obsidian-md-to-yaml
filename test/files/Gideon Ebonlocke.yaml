@@ -1,0 +1,20 @@
+bodyText: A retired adventurer who has turned to educating Waterdeep's youth in literature
+  and the tale of legendary heroes.
+image: 1700545464.png
+imageSubtext: Male Human
+lists:
+- items:
+  - name: Quirk
+    value: Tends to refer to the world around him in literary metaphors and cite famous
+      fictional adventurers' quotes.
+  - name: Likes
+    value: Literature, storytelling, and teaching
+  - name: Dislikes
+    value: Disruption in his class, tales with no moral, uncivil behavior
+  title: ''
+- items:
+  - name: Location
+    value: Southern Ward
+  title: ''
+name: Gideon Ebonlocke
+nameSubtext: Literature Teacher

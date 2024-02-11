@@ -56,6 +56,13 @@ nameSubtext: Information Broker and Verdant Advocate
         # Test that the file was created.
         self.assertTrue(Path("test/files/grommok.yaml").exists())
 
+    def test_gideon_ebonlocke(self):
+        # Test that the function works with the Gideon Ebonlocke file.
+        markdown_to_yaml("test/files/Gideon Ebonlocke.md", "test/files")
+
+        # Test that the file was created.
+        self.assertTrue(Path("test/files/Gideon Ebonlocke.yaml").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

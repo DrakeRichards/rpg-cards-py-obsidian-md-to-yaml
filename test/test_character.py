@@ -10,6 +10,7 @@ class TestCharacter(unittest.TestCase):
         # Test 1: Test the parse function with a simple markdown file.
         # File is located in test/files/test.md
         # Expected Result: The function should return a dictionary with the expected structure.
+        self.maxDiff = None
         with open("test/files/example.md", "r") as file:
             text = file.read()
             character_data = Character.from_markdown(text)
