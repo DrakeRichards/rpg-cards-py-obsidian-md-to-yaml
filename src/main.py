@@ -4,10 +4,10 @@ from pathlib import Path
 import argparse
 
 parser = argparse.ArgumentParser(
-    description="Parse a character file and output a YAML file.")
+    description="Parse a character file and output a YAML file."
+)
 parser.add_argument("input", help="The input file to parse.")
-parser.add_argument(
-    "output", help="The output directory to write the YAML file to.")
+parser.add_argument("output", help="The output directory to write the YAML file to.")
 args = parser.parse_args()
 
 if __name__ == "__main__":

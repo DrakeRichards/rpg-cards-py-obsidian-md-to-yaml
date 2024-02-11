@@ -5,6 +5,7 @@ Interface classes to export to other programs.
 from src.character import Character
 from dataclasses import dataclass
 
+
 @dataclass
 class TpystRpgCardListItem:
     """
@@ -13,6 +14,7 @@ class TpystRpgCardListItem:
 
     value: str
     name: str = ""
+
 
 @dataclass
 class TypstRpgCardList:
@@ -48,7 +50,9 @@ class TypstCharacter:
         # Optional fields
         if character.physicalInfo:
             self.nameSubtext = character.physicalInfo.job
-            self.imageSubtext = f"{character.physicalInfo.gender} {character.physicalInfo.race}"
+            self.imageSubtext = (
+                f"{character.physicalInfo.gender} {character.physicalInfo.race}"
+            )
 
         # Add lists
         # First list: Quirk, Likes, Dislikes
@@ -56,9 +60,15 @@ class TypstCharacter:
             self.lists.append(
                 TypstRpgCardList(
                     items=[
-                        TpystRpgCardListItem(value=character.personality.quirk, name="Quirk"),
-                        TpystRpgCardListItem(value=character.personality.likes, name="Likes"),
-                        TpystRpgCardListItem(value=character.personality.dislikes, name="Dislikes"),
+                        TpystRpgCardListItem(
+                            value=character.personality.quirk, name="Quirk"
+                        ),
+                        TpystRpgCardListItem(
+                            value=character.personality.likes, name="Likes"
+                        ),
+                        TpystRpgCardListItem(
+                            value=character.personality.dislikes, name="Dislikes"
+                        ),
                     ],
                     title="Personality",
                 )
