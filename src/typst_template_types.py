@@ -78,7 +78,7 @@ class Character:
                             value=character.personality.dislikes, name="Dislikes"
                         ),
                     ],
-                    title="Personality",
+                    title="",
                 )
             )
         # Second list: Location
