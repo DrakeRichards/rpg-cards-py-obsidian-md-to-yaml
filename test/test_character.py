@@ -1,5 +1,5 @@
 import unittest
-from src.page_types.character import Character
+from src.obsidian_page_types import Character
 from dataclasses import asdict
 
 

@@ -1,7 +1,7 @@
 # This script is used to convert a character file to a YAML file.
-import src.page_types.character as character
 from yaml import dump
 from pathlib import Path
+from src.obsidian_page_types import Character
 import argparse
 
 parser = argparse.ArgumentParser(
@@ -14,7 +14,7 @@ args = parser.parse_args()
 if __name__ == "__main__":
     characterFileText = Path(args.input).read_text()
 
-    char: dict[str, str] = character.markdown_to_character(characterFileText)
+    char: dict[str, str] = Character.from_markdown(characterFileText)
 
     # Export to a YAML file.
     outfile: str = f"{args.output}/{char['name']}.yaml"
