@@ -27,7 +27,7 @@ class TypstRpgCardList:
 @dataclass
 class TypstCharacter:
     """
-    For exporting to rpg-cards-typst-templates.
+    For exporting characters to rpg-cards-typst-templates.
     The schema is defined in `schemas/rpg-cards-typst-templates/schemas/character.schema.json`.
     """
 
