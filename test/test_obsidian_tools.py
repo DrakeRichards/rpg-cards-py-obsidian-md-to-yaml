@@ -52,7 +52,6 @@ class TestObsidianTools(unittest.TestCase):
         with open("test/files/test.md", "r") as file:
             text = file.read()
             content = ot.get_content(text)
-            print(content)
             self.assertEqual(
                 content,
                 {
