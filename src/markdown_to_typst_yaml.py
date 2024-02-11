@@ -18,7 +18,6 @@ def markdown_to_yaml(inputFile: str, outputDirectory: str) -> None:
 
     # Export to a YAML file.
     outfile: str = f"{outputDirectory}/{character_dict['name']}.yaml"
-    print(f"Writing to {outfile}")
     with open(outfile, mode="wt", encoding="utf-8") as file:
         dump(character_dict, file)
     return
