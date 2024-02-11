@@ -13,7 +13,7 @@ lists:
   - name: Dislikes
     value: People who dismiss the importance of small creatures, cages, excessive
       noise.
-  title: Personality
+  title: ''
 - items:
   - name: Location
     value: North Ward

@@ -28,4 +28,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    markdown_to_yaml(args.inputFile, args.outputDirectory)
+    try:
+        markdown_to_yaml(args.inputFile, args.outputDirectory)
+    except Exception as e:
+        print(e)
+        print("Error converting file.")
+        exit(1)

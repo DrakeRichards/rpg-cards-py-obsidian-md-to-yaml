@@ -43,3 +43,12 @@ nameSubtext: Information Broker and Verdant Advocate
             Path("test/files/Nelra Treewhisper.yaml").read_text(), Loader=FullLoader
         )
         self.assertEqual(expected_dict, actual_dict)
+
+    def test_bad_input(self):
+        # Test that the function raises an error when given a bad input file.
+        with self.assertRaises(Exception):
+            markdown_to_yaml("test/files/bad_input.md", "test/files")
+
+
+if __name__ == "__main__":
+    unittest.main()
