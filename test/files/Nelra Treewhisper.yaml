@@ -1,0 +1,22 @@
+bodyText: Nelra Treewhisper is deeply connected to the urban creatures of Waterdeep.
+  Known as a protector of city pests and vermin, Nelra acts as a bridge between their
+  world and the world of Waterdeep's denizens, standing up for their rights, and providing
+  valuable information from the city streets.
+image: 1697169189.png
+imageSubtext: Female Wood Elf
+lists:
+- items:
+  - name: Quirk
+    value: She habitually takes in strays and tends to whisper when conversing.
+  - name: Likes
+    value: Cross-species communication, liberty of urban wildlife, shadowy corners.
+  - name: Dislikes
+    value: People who dismiss the importance of small creatures, cages, excessive
+      noise.
+  title: Personality
+- items:
+  - name: Location
+    value: North Ward
+  title: ''
+name: Nelra Treewhisper
+nameSubtext: Information Broker and Verdant Advocate

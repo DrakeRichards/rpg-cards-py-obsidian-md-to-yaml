@@ -14,6 +14,16 @@ class TestObsidianTools(unittest.TestCase):
             frontmatter = ot.get_frontmatter(text)
             self.assertEqual(frontmatter, {"title": "Example", "tags": "example, test"})
 
+    def test_get_frontmatter_with_double_brackets(self):
+        # Test the get_frontmatter function with double brackets.
+        # Test 1: Test the get_frontmatter function with a markdown file that contains double brackets.
+        # File is located in test/files/test_with_double_brackets.md
+        # Expected Result: The function should return a dictionary with the expected structure.
+        with open("test/files/test_with_double_brackets.md", "r") as file:
+            text = file.read()
+            frontmatter = ot.get_frontmatter(text)
+            self.assertEqual(frontmatter, {"title": "Example", "doubled": "foo"})
+
     def test_get_dataview_fields(self):
         # Test the get_dataview_fields function.
         # Test 1: Test the get_dataview_fields function with a simple markdown file.

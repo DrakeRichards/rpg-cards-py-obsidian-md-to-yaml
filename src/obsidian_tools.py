@@ -60,6 +60,12 @@ def get_content(text) -> dict[str, str | dict]:
 def get_frontmatter(text) -> dict[str, str]:
     parsed = fm.parse(text)
     frontmatter = parsed[0]
+    # Some frontmatter values are enclosed in [[double brackets]], causing the frontmatter parser to interpret them as double-nested lists.
+    # I want to convert these to strings.
+    for key, value in frontmatter.items():
+        if isinstance(value, list):
+            if isinstance(value[0], list):
+                frontmatter[key] = value[0][0]
     return frontmatter
 
 

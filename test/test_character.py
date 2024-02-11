@@ -35,7 +35,7 @@ class TestCharacter(unittest.TestCase):
                 "frustration": "There's a rumor circulating that the city council plans to exterminate the city's rat population, and Nelra is straining to obtain concrete details to stop them.",
             },
             "image": "1697169189.png",
-            "location": None,
+            "location": "North Ward",
             "groupName": "The Possums",
             "groupTitle": "",
             "groupRank": "3",

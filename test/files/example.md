@@ -3,7 +3,7 @@ tags:
   - character
 aliases:
   - Nelra
-location:
+location: [[North Ward]]
 obsidianUIMode: preview
 ---
 

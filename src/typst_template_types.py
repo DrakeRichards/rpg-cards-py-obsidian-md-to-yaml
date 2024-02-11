@@ -84,8 +84,10 @@ class Character:
         if character.location:
             character_typst.lists.append(
                 CardList(
-                    items=[CardList.ListItem(value=character.location)],
-                    title="Location",
+                    items=[
+                        CardList.ListItem(value=character.location, name="Location")
+                    ],
+                    title="",
                 )
             )
 
