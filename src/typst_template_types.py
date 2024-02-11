@@ -3,7 +3,7 @@ Convert a Character object to an object that will conform with the `rpg-cards-ty
 """
 
 from src.obsidian_page_types import Character as ObsidianCharacter
-from jsonschema import validate
+from jsonschema import validate, ValidationError
 from json import load
 from dataclasses import asdict
 from dataclasses import dataclass
@@ -49,7 +49,7 @@ class Character:
         # Required fields
         character_typst = cls(
             name=character.name,
-            bodyText=character.description.overview,
+            bodyText=(character.description.overview if character.description else ""),
             image=character.image,
         )
 
@@ -82,6 +82,9 @@ class Character:
             )
         # Second list: Location
         if character.location:
+            # Initialize the array if it doesn't exist.
+            if not character_typst.lists:
+                character_typst.lists = []
             character_typst.lists.append(
                 CardList(
                     items=[
@@ -101,7 +104,7 @@ class Character:
         try:
             validate(character_dict, schema)
             is_valid = True
-        except "ValidationError":
+        except ValidationError:
             is_valid = False
         if not is_valid:
             raise ValueError(

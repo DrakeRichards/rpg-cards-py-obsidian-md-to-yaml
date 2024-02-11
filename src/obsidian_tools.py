@@ -102,7 +102,7 @@ def get_images(text) -> list[str]:
     return images
 
 
-def markdown_to_dict(text: str) -> dict:
+def markdown_to_dict(text: str) -> ObsidianPageData:
     """Dumps a Markdown string to a dict.
 
     Args:
