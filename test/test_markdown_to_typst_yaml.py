@@ -10,7 +10,7 @@ class TestMarkdownToTypstYaml(unittest.TestCase):
         markdown_to_yaml("test/files/example.md", "test/files")
 
         # Test that the file was created.
-        self.assertTrue(Path("test/files/Nelra Treewhisper.yaml").exists())
+        self.assertTrue(Path("test/files/example.yaml").exists())
 
         # Test that the file has the correct content.
         # Parse the YAML file into a dict and compare it to the expected dict.
@@ -30,7 +30,7 @@ lists:
   - name: Dislikes
     value: People who dismiss the importance of small creatures, cages, excessive
       noise.
-  title: Personality
+  title: ''
 - items:
     - name: Location
       value: North Ward
@@ -40,7 +40,7 @@ nameSubtext: Information Broker and Verdant Advocate
 """
         expected_dict = load(yaml_text, Loader=FullLoader)
         actual_dict = load(
-            Path("test/files/Nelra Treewhisper.yaml").read_text(), Loader=FullLoader
+            Path("test/files/example.yaml").read_text(), Loader=FullLoader
         )
         self.assertEqual(expected_dict, actual_dict)
 

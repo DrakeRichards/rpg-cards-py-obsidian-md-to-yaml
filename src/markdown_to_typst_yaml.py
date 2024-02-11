@@ -16,8 +16,8 @@ def markdown_to_yaml(inputFile: str, outputDirectory: str) -> None:
     character_typst = TypstCharacter.from_character(character_obsidian)
     character_dict = asdict(character_typst)
 
-    # Export to a YAML file.
-    outfile: str = f"{outputDirectory}/{character_dict['name']}.yaml"
+    # Export to a YAML file. Use the same base filename as the input file.
+    outfile: str = f"{outputDirectory}/{Path(inputFile).stem}.yaml"
     with open(outfile, mode="wt", encoding="utf-8") as file:
         dump(character_dict, file)
     return
