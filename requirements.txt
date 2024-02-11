@@ -1,3 +1,6 @@
-markdown_to_json==2.1.0
-python_frontmatter==1.0.1
+iniconfig==2.0.0
+markdown-to-json==2.1.0
+packaging==23.2
+pluggy==1.4.0
+python-frontmatter==1.0.1
 PyYAML==6.0.1

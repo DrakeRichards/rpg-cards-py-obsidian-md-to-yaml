@@ -1,4 +1,4 @@
-import src.character as character
+import src.page_types.character as character
 from yaml import dump
 from pathlib import Path
 import argparse

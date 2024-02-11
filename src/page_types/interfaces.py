@@ -2,7 +2,7 @@
 Interface classes to export to other programs.
 """
 
-from src.character import Character
+from src.page_types.character import Character
 from dataclasses import dataclass
 
 
