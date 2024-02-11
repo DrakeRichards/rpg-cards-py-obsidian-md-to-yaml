@@ -1,5 +1,18 @@
 """
 Called from the command line to convert an Obsidian character markdown file to a YAML file.
+
+Args:
+    
+    - `inputFile (str)`: The input file to parse.
+    - `outputDirectory (str)`: The output directory to write the YAML file to.
+
+Returns:
+
+    - None
+
+Example:
+    
+    - `python convert_character.py test/files/test.md test/files/`
 """
 
 import argparse
