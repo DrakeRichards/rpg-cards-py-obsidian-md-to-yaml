@@ -49,6 +49,13 @@ nameSubtext: Information Broker and Verdant Advocate
         with self.assertRaises(Exception):
             markdown_to_yaml("test/files/bad_input.md", "test/files")
 
+    def test_grommok(self):
+        # Test that the function works with the Grommok file.
+        markdown_to_yaml("test/files/grommok.md", "test/files")
+
+        # Test that the file was created.
+        self.assertTrue(Path("test/files/grommok.yaml").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

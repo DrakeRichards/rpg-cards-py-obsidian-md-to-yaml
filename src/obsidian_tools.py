@@ -44,6 +44,11 @@ class ObsidianPageData:
         self.images = get_images(text)
 
 
+def simplify_text(text: str) -> str:
+    """All letters to lowercase. Replace spaces with hyphens."""
+    return text.lower().replace(" ", "-")
+
+
 def get_content(text) -> dict[str, str | dict]:
     # Pull the frontmatter into a dict.
     parsed = fm.parse(text)
@@ -79,7 +84,7 @@ def get_dataview_fields(text) -> dict[str, list[str]]:
     if not matches:
         return dv_fields
     for match in matches:
-        dv_key: str = match.group("dvKey")
+        dv_key: str = simplify_text(match.group("dvKey"))
         dv_value: str = match.group("dvValue")
         # Continue just in case the key is empty somehow.
         if not dv_key or dv_key == "":

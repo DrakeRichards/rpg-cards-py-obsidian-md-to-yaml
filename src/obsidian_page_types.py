@@ -90,9 +90,9 @@ class Character:
             hooks=Character.Hooks(**hooks_lower_keys),
             image=page.images[0],
             location=page.frontmatter["location"],
-            groupName=page.dataview_fields["Group Name"][0],
-            groupTitle=page.dataview_fields["Group Title"][0],
-            groupRank=page.dataview_fields["Group Rank"][0],
+            groupName=page.dataview_fields["group-name"][0],
+            groupTitle=page.dataview_fields["group-title"][0],
+            groupRank=page.dataview_fields["group-rank"][0],
         )
 
         return char

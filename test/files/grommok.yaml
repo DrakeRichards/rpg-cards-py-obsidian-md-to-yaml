@@ -1,0 +1,25 @@
+bodyText: Grommok was a frequent patron of Trollskull Manor and knew Inga fairly well.
+  He saw doom hanging around Celebrendil Eldrind and feared that this would be brought
+  onto Inga as well. He has tried to contact Celebrendil's phantom before, thinking
+  it may have been Inga, but gave up when he learned otherwise.
+image: Pasted image 20230919230439.png
+imageSubtext: Male Half-Orc
+lists:
+- items:
+  - name: Quirk
+    value: Grommok has a habit of pausing briefly before making important decisions
+      or speaking profound statements. This pause allows him to gather his thoughts
+      and weigh his words carefully.
+  - name: Likes
+    value: Grommok enjoys studying ancient texts, delving into the mysteries of divine
+      magic, and helping those in need.
+  - name: Dislikes
+    value: He dislikes deceit, cruelty, and corruption. He has a particular disdain
+      for undead creatures and seeks to cleanse them from the world.
+  title: ''
+- items:
+  - name: Location
+    value: Trollskull Alley
+  title: ''
+name: Grommok
+nameSubtext: Cleric of Lathander
