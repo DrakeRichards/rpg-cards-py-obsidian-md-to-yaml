@@ -12,7 +12,7 @@ Returns:
 
 Example:
     
-    - `python convert_character.py test/files/test.md test/files/`
+    - `python convert_character.py test/files/test.md test/files`
 """
 
 import argparse
