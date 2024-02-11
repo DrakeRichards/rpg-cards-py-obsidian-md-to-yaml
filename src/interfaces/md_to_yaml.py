@@ -1,3 +1,4 @@
+# This script is used to convert a character file to a YAML file.
 import src.page_types.character as character
 from yaml import dump
 from pathlib import Path
@@ -13,7 +14,7 @@ args = parser.parse_args()
 if __name__ == "__main__":
     characterFileText = Path(args.input).read_text()
 
-    char: dict[str, str] = character.parse(characterFileText)
+    char: dict[str, str] = character.markdown_to_character(characterFileText)
 
     # Export to a YAML file.
     outfile: str = f"{args.output}/{char['name']}.yaml"

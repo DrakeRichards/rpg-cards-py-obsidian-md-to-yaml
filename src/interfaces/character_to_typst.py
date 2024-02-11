@@ -1,5 +1,5 @@
 """
-Interface classes to export to other programs.
+Convert a Character object to an object that will conform with the `rpg-cards-typst-templates/character` schema.
 """
 
 from src.page_types.character import Character
@@ -38,26 +38,31 @@ class TypstCharacter:
     image: str
     nameSubtext: str = ""
     imageSubtext: str = ""
-    lists: list[TypstRpgCardList] = []
+    lists: list[TypstRpgCardList] | None = None
 
     # Initialize an instance of the class given a Character object.
-    def __init__(self, character: Character):
+    @classmethod
+    def from_character(cls, character: Character):
+
         # Required fields
-        self.name = character.name
-        self.bodyText = character.description.overview
-        self.image = character.image
+        obj = cls(
+            name=character.name,
+            bodyText=character.description.overview,
+            image=character.image,
+        )
 
         # Optional fields
         if character.physicalInfo:
-            self.nameSubtext = character.physicalInfo.job
-            self.imageSubtext = (
+            obj.nameSubtext = character.physicalInfo.job
+            obj.imageSubtext = (
                 f"{character.physicalInfo.gender} {character.physicalInfo.race}"
             )
 
         # Add lists
         # First list: Quirk, Likes, Dislikes
         if character.personality:
-            self.lists.append(
+            obj.lists = []
+            obj.lists.append(
                 TypstRpgCardList(
                     items=[
                         TpystRpgCardListItem(
@@ -75,9 +80,10 @@ class TypstCharacter:
             )
         # Second list: Location
         if character.location:
-            self.lists.append(
+            obj.lists.append(
                 TypstRpgCardList(
                     items=[TpystRpgCardListItem(value=character.location)],
                     title="Location",
                 )
             )
+        return obj

@@ -1,3 +1,7 @@
+"""
+Extracts data from Obsidian Markdown files.
+"""
+
 import json
 import re
 import frontmatter as fm
