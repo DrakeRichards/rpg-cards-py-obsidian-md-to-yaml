@@ -31,6 +31,5 @@ if __name__ == "__main__":
     try:
         markdown_to_yaml(args.inputFile, args.outputDirectory)
     except Exception as e:
-        print(e)
-        print("Error converting file.")
+        print(f"Error converting markdown to YAML. Failure reason: {e}")
         exit(1)
