@@ -64,6 +64,28 @@ class TestObsidianTools(unittest.TestCase):
                 },
             )
 
+    def test_remove_wikilinks(self):
+        # Test the remove_wikilinks function.
+        # Test 1: Test the remove_wikilinks function with a simple markdown string.
+        # Expected Result: The function should return a string with the expected structure.
+        text = "This is a [[wikilink]]."
+        result = ot.remove_wikilinks(text)
+        self.assertEqual(result, "This is a wikilink.")
+        # Test 2: Test the remove_wikilinks function with a markdown string that contains an embedded wikilink.
+        embedded_text = "This is an ![[embedded wikilink]]."
+        embedded_text_result = ot.remove_wikilinks(embedded_text)
+        self.assertEqual(embedded_text_result, "This is an ![[embedded wikilink]].")
+        # Test 3: Test the remove_wikilinks function with a markdown string that contains multiple wikilinks.
+        multiple_text = "This is a [[wikilink]]. This is another [[wikilink]]."
+        multiple_text_result = ot.remove_wikilinks(multiple_text)
+        self.assertEqual(
+            multiple_text_result, "This is a wikilink. This is another wikilink."
+        )
+        # Test 4: Test the remove_wikilinks function with a markdown string that contains a wikilink with alt text.
+        alt_text = "This is a [[wikilink|with alt text]]."
+        alt_text_result = ot.remove_wikilinks(alt_text)
+        self.assertEqual(alt_text_result, "This is a with alt text.")
+
     def test_ObsidianPageData(self):
         # Test the ObsidianPageData class.
         # Test 1: Test the ObsidianPageData class with a simple markdown file.

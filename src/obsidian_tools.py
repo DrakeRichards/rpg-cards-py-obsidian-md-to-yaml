@@ -37,9 +37,10 @@ class ObsidianPageData:
     images: list[str] = field(init=False)
 
     def __init__(self, text):
-        self.frontmatter = get_frontmatter(text)
-        self.content = get_content(text)
-        self.dataview_fields = get_dataview_fields(text)
+        text_without_wikilinks = remove_wikilinks(text)
+        self.frontmatter = get_frontmatter(text_without_wikilinks)
+        self.content = get_content(text_without_wikilinks)
+        self.dataview_fields = get_dataview_fields(text_without_wikilinks)
         self.images = get_images(text)
 
 
@@ -100,6 +101,24 @@ def get_images(text) -> list[str]:
     for match in matches:
         images.append(match.group("filename"))
     return images
+
+
+def remove_wikilinks(text: str) -> str:
+    """
+    Extracts the string contents of all wikilinks from a string.
+    If there is alt text, use that instead of the name of the file.
+    Leaves embeds (`![[link]]`) alone.
+    """
+    pattern = re.compile(
+        r"(?<![!])\[\[(?P<link>.+?)(?:\|)?(?P<altText>(?<=\|).+?)?\]\]"
+    )
+    matches = pattern.finditer(text)
+    for match in matches:
+        if match.group("altText"):
+            text = text.replace(match.group(0), match.group("altText"))
+        else:
+            text = text.replace(match.group(0), match.group("link"))
+    return text
 
 
 def markdown_to_dict(text: str) -> ObsidianPageData:
