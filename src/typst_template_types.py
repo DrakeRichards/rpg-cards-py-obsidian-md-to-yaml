@@ -7,6 +7,7 @@ from jsonschema import validate, ValidationError
 from json import load
 from dataclasses import asdict
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -98,8 +99,11 @@ class Character:
         schema_location = (
             "schemas/rpg-cards-typst-templates/schemas/character.schema.json"
         )
+        # Construct a path based on this file's location.
+        project_root = Path(__file__).parent.parent
+        schema_path = Path(project_root, schema_location)
         character_dict = asdict(character_typst)
-        with open(schema_location) as file:
+        with open(schema_path) as file:
             schema = load(file)
         try:
             validate(character_dict, schema)
