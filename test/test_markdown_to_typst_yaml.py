@@ -34,6 +34,8 @@ lists:
 - items:
     - name: Location
       value: North Ward
+    - name: Member of
+      value: The Possums
   title: ''
 name: Nelra Treewhisper
 nameSubtext: Information Broker and Verdant Advocate

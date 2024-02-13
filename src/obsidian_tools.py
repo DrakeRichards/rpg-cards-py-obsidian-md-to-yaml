@@ -7,6 +7,7 @@ import re
 import frontmatter as fm
 import markdown_to_json
 from dataclasses import dataclass, field
+from typing import List, Dict
 
 
 @dataclass
@@ -31,10 +32,10 @@ class ObsidianPageData:
     """
 
     text: str
-    frontmatter: dict[str, str] = field(init=False)
-    content: dict[str, str | dict] = field(init=False)
-    dataview_fields: dict[str, list[str]] = field(init=False)
-    images: list[str] = field(init=False)
+    frontmatter: Dict[str, str] = field(init=False)
+    content: Dict[str, str | dict] = field(init=False)  # type: ignore
+    dataview_fields: Dict[str, List[str]] = field(init=False)
+    images: List[str] = field(init=False)
 
     def __init__(self, text):
         text_without_wikilinks = remove_wikilinks(text)
@@ -49,7 +50,7 @@ def simplify_text(text: str) -> str:
     return text.lower().replace(" ", "-")
 
 
-def get_content(text) -> dict[str, str | dict]:
+def get_content(text) -> Dict[str, str | dict]:  # type: ignore
     # Pull the frontmatter into a dict.
     parsed = fm.parse(text)
 
@@ -63,7 +64,7 @@ def get_content(text) -> dict[str, str | dict]:
     return data
 
 
-def get_frontmatter(text) -> dict[str, str]:
+def get_frontmatter(text) -> Dict[str, str]:
     parsed = fm.parse(text)
     frontmatter = parsed[0]
     # Some frontmatter values are enclosed in [[double brackets]], causing the frontmatter parser to interpret them as double-nested lists.
@@ -75,7 +76,7 @@ def get_frontmatter(text) -> dict[str, str]:
     return frontmatter
 
 
-def get_dataview_fields(text) -> dict[str, list[str]]:
+def get_dataview_fields(text) -> Dict[str, List[str]]:
     dv_fields_pattern: re.Pattern[str] = re.compile(
         r"(?:[(\[]|^- )(?P<dvKey>[\w ]+):: (?:\[{0,2})(?:\w*\|)?(?P<dvValue>[^\[\]]*?)(?:[)\]]|$|\n)"
     )
@@ -97,7 +98,7 @@ def get_dataview_fields(text) -> dict[str, list[str]]:
     return dv_fields
 
 
-def get_images(text) -> list[str]:
+def get_images(text) -> List[str]:
     image_file_pattern = re.compile(r"\[\[(?P<filename>.*?\.(?:jpg|png|jpeg|webp))")
     matches = list(image_file_pattern.finditer(text))
     images = []

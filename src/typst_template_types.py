@@ -8,6 +8,7 @@ from json import load
 from dataclasses import asdict
 from dataclasses import dataclass
 from pathlib import Path
+from typing import List
 
 
 @dataclass
@@ -25,7 +26,7 @@ class CardList:
         value: str
         name: str = ""
 
-    items: list[ListItem]
+    items: List[ListItem]
     title: str = ""
 
 
@@ -41,7 +42,7 @@ class Character:
     image: str
     nameSubtext: str = ""
     imageSubtext: str = ""
-    lists: list[CardList] | None = None
+    lists: List[CardList] | None = None  # type: ignore
 
     # Initialize an instance of the class given a Character object.
     @classmethod
@@ -81,19 +82,21 @@ class Character:
                     title="",
                 )
             )
-        # Second list: Location
+
+        # Second list: Location and group membership
+        secondList = CardList(items=[], title="")
         if character.location:
-            # Initialize the array if it doesn't exist.
-            if not character_typst.lists:
-                character_typst.lists = []
-            character_typst.lists.append(
-                CardList(
-                    items=[
-                        CardList.ListItem(value=character.location, name="Location")
-                    ],
-                    title="",
-                )
+            locationItem = CardList.ListItem(value=character.location, name="Location")
+            secondList.items.append(locationItem)
+        if character.groupName != "":
+            groupNameItem = CardList.ListItem(
+                value=character.groupName, name="Member of"
             )
+            secondList.items.append(groupNameItem)
+
+        if not character_typst.lists:
+            character_typst.lists = []
+        character_typst.lists.append(secondList)
 
         # Validate the character_typst object against the schema.
         schema_location = (
