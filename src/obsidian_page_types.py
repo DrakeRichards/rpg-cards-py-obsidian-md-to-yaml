@@ -1,9 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import src.obsidian_tools as obsidian_tools
 
 
 @dataclass
-class Character:
+class ObsidianCharacter:
     """This is the format that my Obsidian character template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs."""
 
     @dataclass
@@ -30,43 +30,31 @@ class Character:
         frustration: str = ""
 
     name: str = ""
-    physicalInfo: PhysicalInfo | None = None
-    description: Description | None = None
-    personality: Personality | None = None
-    hooks: Hooks | None = None
+    physicalInfo: PhysicalInfo = field(default_factory=PhysicalInfo)
+    description: Description = field(default_factory=Description)
+    personality: Personality = field(default_factory=Personality)
+    hooks: Hooks = field(default_factory=Hooks)
     image: str = ""
     location: str = ""
     groupName: str = ""
     groupTitle: str = ""
     groupRank: str = ""
 
-    @classmethod
-    def from_markdown(cls, text: str):
-        """
-        Convert a markdown-formatted string into either a Character object or a plain dict. Used to export to other programs.
-
-        Args:
-            text (str): The markdown text to parse.
-            mode (str): The mode to return the data in. Options are "dict" (default) and "object".
-
-        Raises:
-            KeyError: _description_
-
-        Returns:
-            str: _description_
-        """
+    def __init__(self, markdownText: str):
         # Parse string to object
-        page = obsidian_tools.ObsidianPageData(text)
+        page = obsidian_tools.ObsidianPageData(markdownText)
 
         # The name of the character should be H1, which is the key of the top-level element.
-        name: str = list(page.content.keys())[0]
+        characterName: str = list(page.content.keys())[0]
 
         # Check whether H1 has any subheaders.
-        if isinstance(page.content[name], str):
+        # If H1 has subheaders, then the name will be a key in the content dict.
+        # If it's a string, then it's just the description.
+        if isinstance(page.content[characterName], str):
             raise KeyError("H1 has no subheadings.")
 
         # Put the page's contents into a separate dict for ease of reference.
-        content: dict[str, dict] = page.content[name]  # type: ignore
+        content: dict[str, dict] = page.content[characterName]  # type: ignore
 
         # I want the resulting object's keys to be lowercase.
         description_lower_keys = {
@@ -78,21 +66,17 @@ class Character:
         hooks_lower_keys = {k.lower(): v for k, v in content["Hooks"].items()}
 
         # Make it a Character class
-        char = cls(
-            name=name,
-            physicalInfo=Character.PhysicalInfo(
-                gender=page.dataview_fields["gender"][0],
-                race=page.dataview_fields["race"][0],
-                job=page.dataview_fields["class"][0],
-            ),
-            description=Character.Description(**description_lower_keys),
-            personality=Character.Personality(**personality_lower_keys),
-            hooks=Character.Hooks(**hooks_lower_keys),
-            image=page.images[0],
-            location=page.frontmatter["location"],
-            groupName=page.dataview_fields["group-name"][0],
-            groupTitle=page.dataview_fields["group-title"][0],
-            groupRank=page.dataview_fields["group-rank"][0],
+        self.name = characterName
+        self.physicalInfo = ObsidianCharacter.PhysicalInfo(
+            gender=page.dataview_fields["gender"][0],
+            race=page.dataview_fields["race"][0],
+            job=page.dataview_fields["class"][0],
         )
-
-        return char
+        self.description = ObsidianCharacter.Description(**description_lower_keys)
+        self.personality = ObsidianCharacter.Personality(**personality_lower_keys)
+        self.hooks = ObsidianCharacter.Hooks(**hooks_lower_keys)
+        self.image = page.images[0]
+        self.location = page.frontmatter["location"]
+        self.groupName = page.dataview_fields["group-name"][0]
+        self.groupTitle = page.dataview_fields["group-title"][0]
+        self.groupRank = page.dataview_fields["group-rank"][0]

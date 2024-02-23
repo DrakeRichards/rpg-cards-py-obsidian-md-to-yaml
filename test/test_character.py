@@ -1,5 +1,5 @@
 import unittest
-from src.obsidian_page_types import Character
+from src.obsidian_page_types import ObsidianCharacter
 from dataclasses import asdict
 
 
@@ -13,7 +13,7 @@ class TestCharacter(unittest.TestCase):
         self.maxDiff = None
         with open("test/files/example.md", "r") as file:
             text = file.read()
-            character_data = Character.from_markdown(text)
+            character_data = ObsidianCharacter(text)
         example_character_data = {
             "name": "Nelra Treewhisper",
             "physicalInfo": {

@@ -4,16 +4,16 @@ Convert an Obsidian markdown file to a YAML file.
 
 from yaml import dump
 from pathlib import Path
-from src.obsidian_page_types import Character as ObsidianCharacter
-from src.typst_template_types import Character as TypstCharacter
+from src.obsidian_page_types import ObsidianCharacter
+from src.typst_template_types import TypstCharacter
 from dataclasses import asdict
 
 
 def markdown_to_yaml(inputFile: str, outputDirectory: str) -> None:
     characterFileText = Path(inputFile).read_text()
 
-    character_obsidian = ObsidianCharacter.from_markdown(characterFileText)
-    character_typst = TypstCharacter.from_character(character_obsidian)
+    character_obsidian = ObsidianCharacter(characterFileText)
+    character_typst = TypstCharacter(character_obsidian)
     character_dict = asdict(character_typst)
 
     # Export to a YAML file. Use the same base filename as the input file.

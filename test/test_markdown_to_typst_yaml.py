@@ -6,6 +6,7 @@ from yaml import load, FullLoader
 
 class TestMarkdownToTypstYaml(unittest.TestCase):
     def test_markdown_to_typst_yaml(self):
+        self.maxDiff = None
         # Test that the function works.
         markdown_to_yaml("test/files/example.md", "test/files")
 
@@ -39,6 +40,7 @@ lists:
   title: ''
 name: Nelra Treewhisper
 nameSubtext: Information Broker and Verdant Advocate
+template: character
 """
         expected_dict = load(yaml_text, Loader=FullLoader)
         actual_dict = load(
