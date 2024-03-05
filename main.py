@@ -19,18 +19,26 @@ parser.add_argument("outputFilePath", help="The path to the output JSON file.")
 params = parser.parse_args()
 
 
-def getMarkdownFiles(directoryPath: str) -> List[str]:
-    """Returns a list of all markdown files in a directory."""
+def getFilesWithExtension(directoryPath: str, extension: str) -> List[str]:
+    """Get all files in a directory with a specific extension.
+
+    Args:
+        directoryPath (str): The path to the directory.
+        extension (str): The file extension, including the period.
+
+    Returns:
+        List[str]: A list of file paths.
+    """
     from os import listdir
     from os.path import isfile, join
 
     files = [f for f in listdir(directoryPath) if isfile(join(directoryPath, f))]
-    markdownFiles = [f for f in files if f.endswith(".md")]
+    markdownFiles = [f for f in files if f.endswith(extension)]
     return [f"{directoryPath}/{file}" for file in markdownFiles]
 
 
 if __name__ == "__main__":
-    markdownFiles = getMarkdownFiles(params.inputDirectoryPath)
+    markdownFiles = getFilesWithExtension(params.inputDirectoryPath, ".md")
     outputFilePath = params.outputFilePath
     typstCards = {"cards": []}
     for file in markdownFiles:
