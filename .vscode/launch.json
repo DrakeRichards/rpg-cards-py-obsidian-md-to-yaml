@@ -7,17 +7,33 @@
         {
             "name": "Python: Current Module",
             "type": "debugpy",
-            "python": "${workspaceRoot}/venv/bin/python",
             "request": "launch",
-            "program": "${relativeFileDirname}/${fileBasename}",
+            "module": "${relativeFileDirname}.${fileBasenameNoExtension}",
             "purpose": [
                 "debug-test"
             ],
             "console": "integratedTerminal",
-            "justMyCode": true,
             "env": {
                 "PYTHONPATH": "${workspaceRoot}"
-            },
-        }
+            }
+        },
+        {
+            "name": "Python: Current Script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Main File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "test/files",
+                "data.yaml"
+            ]
+        },
     ]
 }

@@ -13,9 +13,8 @@ class TestCharacterToTypst(unittest.TestCase):
             text = file.read()
             character_data: ObsidianCharacter = ObsidianCharacter(text)
         character_typst: TypstCharacter = TypstCharacter(character_data)
-        # The TypstCharacter object validates against the schema itself, so we don't need to validate it here.
-        # Instead, we'll just check that the object is a TypstCharacter object.
         self.assertIsInstance(character_typst, TypstCharacter)
+        self.assertTrue(character_typst.validateSchema())
 
 
 if __name__ == "__main__":

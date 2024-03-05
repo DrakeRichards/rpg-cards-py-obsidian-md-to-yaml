@@ -4,7 +4,7 @@ Convert an Obsidian page object to an object that will conform with the schema f
 
 from dataclasses import dataclass, field
 from typing import List
-from src.obsidian_page_types import ObsidianCharacter as ObsidianCharacter
+import src.obsidian_page_types as obsidianPages
 from src.typst_card_abc import rpgCardInterface
 
 
@@ -43,7 +43,7 @@ class TypstCharacter(rpgCardInterface):
     lists: List[CardList] = field(default_factory=list)
     template: str = "character"
 
-    def __init__(self, character: ObsidianCharacter):
+    def __init__(self, character: obsidianPages.ObsidianCharacter):
         self.name = character.name
         self.bodyText = character.description.overview if character.description else ""
         self.image = character.image
@@ -54,7 +54,7 @@ class TypstCharacter(rpgCardInterface):
         self.lists = TypstCharacter.__get_lists(character)
 
     @staticmethod
-    def __get_lists(character: ObsidianCharacter) -> List[CardList]:
+    def __get_lists(character: obsidianPages.ObsidianCharacter) -> List[CardList]:
         lists = [
             TypstCharacter.__get_personality_list(character),
             TypstCharacter.__get_secondary_list(character),
@@ -62,7 +62,7 @@ class TypstCharacter(rpgCardInterface):
         return lists
 
     @staticmethod
-    def __get_personality_list(character: ObsidianCharacter) -> CardList:
+    def __get_personality_list(character: obsidianPages.ObsidianCharacter) -> CardList:
         return CardList(
             items=[
                 CardList.ListItem(value=character.personality.quirk, name="Quirk"),
@@ -75,7 +75,7 @@ class TypstCharacter(rpgCardInterface):
         )
 
     @staticmethod
-    def __get_secondary_list(character: ObsidianCharacter) -> CardList:
+    def __get_secondary_list(character: obsidianPages.ObsidianCharacter) -> CardList:
         """
         Second list is an unordered and untitled list of location and group membership.
         """
@@ -89,3 +89,17 @@ class TypstCharacter(rpgCardInterface):
             )
             secondList.items.append(groupNameItem)
         return secondList
+
+
+def fromPageObject(pageObject: obsidianPages.RpgData) -> rpgCardInterface:
+    """
+    Converts an Obsidian page object to a rpgCardInterface object.
+    """
+    if isinstance(pageObject, obsidianPages.ObsidianCharacter):
+        return TypstCharacter(pageObject)
+    if isinstance(pageObject, obsidianPages.ObsidianItem):
+        raise NotImplementedError("ObsidianItem is not yet implemented.")
+    if isinstance(pageObject, obsidianPages.ObsidianLocation):
+        raise NotImplementedError("ObsidianLocation is not yet implemented.")
+    else:
+        raise ValueError(f"Unknown page type: {type(pageObject)}")

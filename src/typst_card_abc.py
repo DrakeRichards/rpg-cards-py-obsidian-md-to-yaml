@@ -3,7 +3,7 @@ Abstract base class for data to be used in rpg-cards-typst-templates.
 """
 
 import requests
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import asdict, dataclass
 from jsonschema import validate, ValidationError
 
@@ -39,9 +39,11 @@ class rpgCardInterface(ABC):
 
     def validateSchema(self) -> bool:
         schema = requests.get(self.SCHEMA_URL).json()
-        character_dict = asdict(self)
+        # The schema assumes that the data is a list of cards.
+        # Since this is a single card, we need to wrap it in a list.
+        card: dict = {"cards": [asdict(self)]}
         try:
-            validate(character_dict, schema)
+            validate(card, schema)
             is_valid = True
         except ValidationError:
             is_valid = False
