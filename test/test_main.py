@@ -1,8 +1,10 @@
 import unittest
-from jsonschema import ValidationError, validate
+from dataclasses import asdict
+
 import requests
 import yaml
-from dataclasses import asdict
+from jsonschema import ValidationError, validate
+
 import src.obsidian_page_types as obsidianPages
 from src.typst_card_abc import rpgCardInterface
 from src.typst_template_types import TypstCharacter as TypstCharacter

@@ -1,10 +1,12 @@
-import src.obsidian_page_types as obsidianPages
-from src.typst_card_abc import rpgCardInterface
-from typing import List
-import src.typst_template_types as typstTemplates
-import yaml
 import argparse
 from dataclasses import asdict
+from typing import List
+
+import yaml
+
+import src.obsidian_page_types as obsidianPages
+import src.typst_template_types as typstTemplates
+from src.typst_card_abc import rpgCardInterface
 
 parser = argparse.ArgumentParser(
     description="Converts Obsidian markdown files to Typst JSON."

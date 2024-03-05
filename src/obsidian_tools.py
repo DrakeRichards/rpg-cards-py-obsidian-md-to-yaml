@@ -4,10 +4,11 @@ Extracts data from Obsidian Markdown files.
 
 import json
 import re
+from dataclasses import dataclass, field
+from typing import Dict, List
+
 import frontmatter as fm
 import markdown_to_json
-from dataclasses import dataclass, field
-from typing import List, Dict
 
 
 @dataclass

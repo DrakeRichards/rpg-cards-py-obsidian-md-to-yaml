@@ -4,6 +4,7 @@ Convert an Obsidian page object to an object that will conform with the schema f
 
 from dataclasses import dataclass, field
 from typing import List
+
 import src.obsidian_page_types as obsidianPages
 from src.typst_card_abc import rpgCardInterface
 

@@ -1,8 +1,7 @@
-from enum import Enum
-from src.obsidian_tools import ObsidianPageData
-
-
 from dataclasses import dataclass, field
+from enum import Enum
+
+from src.obsidian_tools import ObsidianPageData
 
 
 class ObsidianPageTypes(Enum):
@@ -150,8 +149,6 @@ class ObsidianItem(RpgData):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __post_init__(self):
-        # Make it an Item class
         self.description = self.content["Description"]
         self.itemType = self.frontmatter["tags"][0]
         self.rarity = self.dataview_fields["rarity"][0]
@@ -168,6 +165,7 @@ class ObsidianItemWeapon(ObsidianItem):
 
     damage: str = ""
     range: str = ""
+    # TODO: Implement the full class for weapons.
 
 
 @dataclass
@@ -178,6 +176,7 @@ class ObsidianItemArmor(ObsidianItem):
 
     armorClass: str = ""
     stealth: str = ""
+    # TODO: Implement the full class for armor.
 
 
 @dataclass
@@ -200,6 +199,14 @@ class ObsidianLocation(RpgData):
 
 
 def get_lower_keys(content: dict[str, str]) -> dict[str, str]:
+    """Converts the keys of a dictionary to lowercase.
+
+    Args:
+        content (dict[str, str]): A dictionary.
+
+    Returns:
+        dict[str, str]: A dictionary with lowercase keys.
+    """
     lower_keys = {k.lower(): v for k, v in content.items()}
     return lower_keys
 
@@ -252,6 +259,17 @@ def getPageType(text: str) -> ObsidianPageTypes:
 
 
 def newPage(text: str) -> RpgData:
+    """Main function for creating a new Obsidian page object.
+
+    Args:
+        text (str): The text of the markdown file.
+
+    Raises:
+        ValueError: If the page type is not recognized.
+
+    Returns:
+        RpgData: An Obsidian page object.
+    """
     pageType = getPageType(text)
     match pageType:
         case ObsidianPageTypes.CHARACTER:
