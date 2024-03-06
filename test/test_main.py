@@ -132,11 +132,8 @@ Bob is frustrated by the lack of justice in the world.
             obsidianPages.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
-        character_dict: dict = asdict(character_typst)
-        data = {"cards": [character_dict]}
-        schema = requests.get(rpgCardInterface.SCHEMA_URL).json()
         try:
-            validate(data, schema)
+            character_typst.validateSchema()
             is_valid = True
         except ValidationError:
             is_valid = False

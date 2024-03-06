@@ -2,7 +2,8 @@
 Abstract base class for data to be used in rpg-cards-typst-templates.
 """
 
-import requests
+from pathlib import Path
+import json
 from abc import ABC
 from dataclasses import asdict, dataclass
 from jsonschema import validate, ValidationError
@@ -13,8 +14,6 @@ class rpgCardInterface(ABC):
     """
     Abstract base class for data to be used in rpg-cards-typst-templates.
     """
-
-    SCHEMA_URL = "https://raw.githubusercontent.com/DrakeRichards/rpg-cards-typst-templates/main/schemas/data.schema.json"
 
     def template(self) -> str:
         return ""
@@ -38,17 +37,20 @@ class rpgCardInterface(ABC):
         return []
 
     def validateSchema(self) -> bool:
-        schema = requests.get(self.SCHEMA_URL).json()
-        # The schema assumes that the data is a list of cards.
-        # Since this is a single card, we need to wrap it in a list.
-        card: dict = {"cards": [asdict(self)]}
-        try:
-            validate(card, schema)
-            is_valid = True
-        except ValidationError:
-            is_valid = False
-        if not is_valid:
-            raise ValueError(
-                f"The character_typst object does not validate against the schema: '{self.SCHEMA_URL}'"
-            )
-        return is_valid
+        # Get the schema from the repository.
+        SCHEMA_FILE: Path = Path("rpg-cards-typst-templates/schemas/data.schema.json")
+        with open(SCHEMA_FILE, "r") as file:
+            schema = json.load(file)
+            # The schema assumes that the data is a list of cards.
+            # Since this is a single card, we need to wrap it in a list.
+            card: dict = {"cards": [asdict(self)]}
+            try:
+                validate(instance=card, schema=schema)
+                is_valid = True
+            except ValidationError:
+                is_valid = False
+            if not is_valid:
+                raise ValueError(
+                    f"The character_typst object does not validate against the schema: '{SCHEMA_FILE}'"
+                )
+            return is_valid
