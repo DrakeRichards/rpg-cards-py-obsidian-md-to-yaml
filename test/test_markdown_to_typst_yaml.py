@@ -1,7 +1,9 @@
 import unittest
-from src.markdown_to_typst_yaml import markdown_to_yaml
 from pathlib import Path
-from yaml import load, FullLoader
+
+from yaml import FullLoader, load
+
+from src.markdown_to_typst_yaml import markdown_to_yaml
 
 
 class TestMarkdownToTypstYaml(unittest.TestCase):

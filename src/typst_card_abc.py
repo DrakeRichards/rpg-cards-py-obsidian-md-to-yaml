@@ -2,11 +2,12 @@
 Abstract base class for data to be used in rpg-cards-typst-templates.
 """
 
-from pathlib import Path
 import json
 from abc import ABC
 from dataclasses import asdict, dataclass
-from jsonschema import validate, ValidationError
+from pathlib import Path
+
+from jsonschema import ValidationError, validate
 
 
 @dataclass

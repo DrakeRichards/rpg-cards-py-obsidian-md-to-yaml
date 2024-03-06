@@ -1,4 +1,5 @@
 import unittest
+
 import src.obsidian_tools as ot
 
 
