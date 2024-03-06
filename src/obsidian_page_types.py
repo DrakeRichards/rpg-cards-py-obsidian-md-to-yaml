@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from enum import Enum
 
+from dacite import from_dict
+
 from src.obsidian_tools import ObsidianPageData
 
 
@@ -112,22 +114,25 @@ class ObsidianCharacter(RpgData):
                 overview=self.content["Description"]
             )
         else:
-            self.description = ObsidianCharacter.Description(
-                **get_lower_keys(self.content["Description"])
+            self.description = from_dict(
+                data_class=ObsidianCharacter.Description,
+                data=get_lower_keys(self.content["Description"]),
             )
         if isinstance(self.content["Personality"], str):
             self.personality = ObsidianCharacter.Personality(
                 quirk=self.content["Personality"]
             )
         else:
-            self.personality = ObsidianCharacter.Personality(
-                **get_lower_keys(self.content["Personality"])
+            self.personality = from_dict(
+                data_class=ObsidianCharacter.Personality,
+                data=get_lower_keys(self.content["Personality"]),
             )
         if isinstance(self.content["Hooks"], str):
             self.hooks = ObsidianCharacter.Hooks(goals=self.content["Hooks"])
         else:
-            self.hooks = ObsidianCharacter.Hooks(
-                **get_lower_keys(self.content["Hooks"])
+            self.hooks = from_dict(
+                data_class=ObsidianCharacter.Hooks,
+                data=get_lower_keys(self.content["Hooks"]),
             )
         # Fill in the rest of the fields
         self.location = self.frontmatter["location"]

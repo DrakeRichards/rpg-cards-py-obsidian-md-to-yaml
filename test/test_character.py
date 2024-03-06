@@ -82,5 +82,19 @@ class TestCharacter(unittest.TestCase):
         self.assertTrue(is_valid)
 
 
+class EdgeCases(unittest.TestCase):
+    # Tests what happens when the input files are not formatted correctly.
+
+    def test_extra_headers(self):
+        # What happens when the markdown file has extra headers?
+        # Expected Result: The function should return an ObsidianCharacter object, and the extra headers should be ignored.
+        character_markdown_file: Path = Path("test/files/extra-headers-character.md")
+        character_markdown: str = character_markdown_file.read_text()
+        character_data: obsidianPages.ObsidianCharacter = (
+            obsidianPages.ObsidianCharacter(character_markdown)
+        )
+        self.assertIsInstance(character_data, obsidianPages.ObsidianCharacter)
+
+
 if __name__ == "__main__":
     unittest.main()
