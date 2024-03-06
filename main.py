@@ -9,13 +9,13 @@ import src.typst_template_types as typstTemplates
 from src.typst_card_abc import rpgCardInterface
 
 parser = argparse.ArgumentParser(
-    description="Converts Obsidian markdown files to Typst JSON."
+    description="Converts Obsidian markdown files to Typst YAML."
 )
 parser.add_argument(
     "inputDirectoryPath",
     help="The path to the directory containing the markdown files.",
 )
-parser.add_argument("outputFilePath", help="The path to the output JSON file.")
+parser.add_argument("outputFilePath", help="The path to the output YAML file.")
 params = parser.parse_args()
 
 

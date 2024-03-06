@@ -162,6 +162,7 @@ cython_debug/
 # Output files
 in/*
 out/*
+!*.placeholder
 
 # OS generated files
 .DS_Store
