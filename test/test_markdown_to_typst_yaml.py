@@ -40,7 +40,8 @@ lists:
   title: ''
 name: Nelra Treewhisper
 nameSubtext: Information Broker and Verdant Advocate
-template: character
+template: landscape-content-left
+bannerColor: "#85144b"
 """
         expected_dict = load(yaml_text, Loader=FullLoader)
         actual_dict = load(

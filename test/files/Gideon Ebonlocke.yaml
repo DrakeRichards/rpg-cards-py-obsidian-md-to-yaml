@@ -1,3 +1,4 @@
+bannerColor: '#85144b'
 bodyText: A retired adventurer who has turned to educating Waterdeep's youth in literature
   and the tale of legendary heroes.
 image: 1700545464.png
@@ -20,4 +21,4 @@ lists:
   title: ''
 name: Gideon Ebonlocke
 nameSubtext: Literature Teacher
-template: character
+template: landscape-content-left

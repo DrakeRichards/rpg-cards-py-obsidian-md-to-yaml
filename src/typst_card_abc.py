@@ -18,6 +18,9 @@ class rpgCardInterface(ABC):
     def template(self) -> str:
         return ""
 
+    def bannerColor(self) -> str:
+        return ""
+
     def name(self) -> str:
         return ""
 

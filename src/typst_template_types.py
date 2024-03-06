@@ -42,7 +42,8 @@ class TypstCharacter(rpgCardInterface):
     nameSubtext: str = ""
     imageSubtext: str = ""
     lists: List[CardList] = field(default_factory=list)
-    template: str = "character"
+    template: str = "landscape-content-left"
+    bannerColor: str = "#85144b"  # maroon
 
     def __init__(self, character: obsidianPages.ObsidianCharacter):
         self.name = character.name
