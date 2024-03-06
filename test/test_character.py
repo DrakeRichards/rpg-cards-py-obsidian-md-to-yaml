@@ -1,12 +1,11 @@
 import unittest
 from dataclasses import asdict
+from pathlib import Path
 
-import requests
 import yaml
-from jsonschema import ValidationError, validate
+from jsonschema import ValidationError
 
 import src.obsidian_page_types as obsidianPages
-from src.typst_card_abc import rpgCardInterface
 from src.typst_template_types import TypstCharacter as TypstCharacter
 
 
@@ -20,66 +19,9 @@ class TestCharacter(unittest.TestCase):
     # 6. Validate the data.yaml file against the remote rpg-cards-typst schema.
 
     def setUp(self) -> None:
-        self.CHARACTER_MARKDOWN_STANDARD: str = """
----
-tags:
-- character
-aliases:
-- Bob
-location: "[[The Tavern]]"
----
-
-# Bob the Barbarian
-
-_(gender:: Male) (race:: Human) (class:: Barbarian)_
-
-![[bob.png]]
-
-## Description
-
-### Overview
-
-Bob is a barbarian who has been traveling the world for many years. He is a skilled warrior and has a strong sense of justice.
-
-### Looks
-
-Bob is a tall, muscular, and handsome wild man with long hair and a beard. He has a scar on his left cheek.
-
-### Voice
-
-Bob has a deep, gravelly voice.
-
-## Personality
-
-### Quirk
-
-Bob has a habit of speaking in the third person.
-
-### Likes
-
-Bob likes to drink, fight, and help people.
-
-### Dislikes
-
-Bob dislikes bullies, liars, and thieves.
-
-## Hooks
-
-### Goals
-
-Bob wants to find his long-lost sister.
-
-### Frustration
-
-Bob is frustrated by the lack of justice in the world.
-
-## Group Membership
-
-- [Group Name:: [[The Adventurers]]]
-- [Group Title:: Member]
-- [Group Rank:: 3]
-
-"""
+        # Read the character markdown file.
+        character_markdown_file: Path = Path("test/files/standard-character.md")
+        self.CHARACTER_MARKDOWN_STANDARD: str = character_markdown_file.read_text()
 
     def test_identify_page_type(self):
         # Test 1: Properly identify a given markdown file as a character.
