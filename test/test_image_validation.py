@@ -31,7 +31,7 @@ class TestImageValidation(unittest.TestCase):
     def test_fix_mismatched_extension(self):
         # Test 3: Rename a file with a mismatched extension to match the file type.
         # Expected Result: The function should return a Path object with the correct extension.
-        new_filepath = imageValidation.copy_file_from_mimetype(self.MISMATCHED_FILE)
+        new_filepath = imageValidation.new_file_from_mimetype(self.MISMATCHED_FILE)
         self.assertEqual(new_filepath, self.MISMATCHED_FILE.with_suffix(".jpg"))
         self.assertTrue(new_filepath.exists())
 

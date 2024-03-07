@@ -13,5 +13,5 @@
     "python.analysis.typeCheckingMode": "basic",
     "python.defaultInterpreterPath": "${workspaceRoot}/venv/bin/python",
     "files.eol": "\n",
-    "typst-lsp.rootPath": "${workspaceFolder}/rpg-cards-typst-templates",
+    "typst-lsp.rootPath": "${workspaceRoot}/rpg-cards-typst-templates",
 }

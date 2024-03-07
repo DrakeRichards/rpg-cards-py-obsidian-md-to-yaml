@@ -44,7 +44,7 @@ def does_extension_match(filepath: Path) -> bool:
     return mime_extension == file_extension
 
 
-def copy_file_from_mimetype(filepath: Path) -> Path:
+def new_file_from_mimetype(filepath: Path) -> Path:
     """
     Make a copy of a file with a mismatched extension to match the file type.
 
