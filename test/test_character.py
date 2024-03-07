@@ -26,8 +26,8 @@ class TestCharacter(unittest.TestCase):
     def test_identify_page_type(self):
         # Test 1: Properly identify a given markdown file as a character.
         # Expected Result: The function should return "character".
-        pageType = obsidian_rpg.getPageType(self.CHARACTER_MARKDOWN_STANDARD)
-        self.assertEqual(pageType, obsidian_rpg.ObsidianPageTypes.CHARACTER)
+        page_type = obsidian_rpg.get_page_type(self.CHARACTER_MARKDOWN_STANDARD)
+        self.assertEqual(page_type, obsidian_rpg.ObsidianPageTypes.CHARACTER)
 
     def test_generate_obsidian_character(self):
         # Test 2: Generate an ObsidianCharacter object from a character markdown string.
@@ -53,7 +53,7 @@ class TestCharacter(unittest.TestCase):
             self.CHARACTER_MARKDOWN_STANDARD
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
-        self.assertTrue(character_typst.validateSchema())
+        self.assertTrue(character_typst.validate_schema())
 
     def test_generate_data_yaml(self):
         # Test 5: Generate a data.yaml file from the TypstCharacter object.
@@ -75,7 +75,7 @@ class TestCharacter(unittest.TestCase):
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
         try:
-            character_typst.validateSchema()
+            character_typst.validate_schema()
             is_valid = True
         except ValidationError:
             is_valid = False

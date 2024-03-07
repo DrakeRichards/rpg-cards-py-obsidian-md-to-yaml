@@ -6,12 +6,12 @@ from typing import List
 
 import yaml
 
-import src.image_validation as imageValidation
+import src.image_validation as image_validation
 import src.obsidian_rpg as obsidian_rpg
 import src.typst as typst
 
 
-def getFilesWithExtension(directoryPath: str, extension: str) -> List[str]:
+def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
     """Get all files in a directory with a specific extension.
 
     Args:
@@ -24,12 +24,12 @@ def getFilesWithExtension(directoryPath: str, extension: str) -> List[str]:
     from os import listdir
     from os.path import isfile, join
 
-    files = [f for f in listdir(directoryPath) if isfile(join(directoryPath, f))]
-    markdownFiles = [f for f in files if f.endswith(extension)]
-    return [f"{directoryPath}/{file}" for file in markdownFiles]
+    files = [f for f in listdir(directory_path) if isfile(join(directory_path, f))]
+    markdown_files = [f for f in files if f.endswith(extension)]
+    return [f"{directory_path}/{file}" for file in markdown_files]
 
 
-def parseToTypstCard(filepath: str) -> typst.rpgCardInterface:
+def parse_to_typst_card(filepath: str) -> typst.RpgCardInterface:
     """Parse an Obsidian markdown file into a Typst card.
 
     Args:
@@ -40,9 +40,9 @@ def parseToTypstCard(filepath: str) -> typst.rpgCardInterface:
     """
     with open(filepath, "r") as file:
         text: str = file.read()
-        pageObject: obsidian_rpg.RpgData = obsidian_rpg.newPage(text)
-        pageTypst: typst.rpgCardInterface = typst.fromPageObject(pageObject)
-        return pageTypst
+        page_object: obsidian_rpg.RpgData = obsidian_rpg.new_page(text)
+        page_typst: typst.RpgCardInterface = typst.from_page_object(page_object)
+        return page_typst
 
 
 # Parser setup
@@ -59,42 +59,42 @@ params = parser.parse_args()
 
 if __name__ == "__main__":
     # Get all markdown files in the input directory
-    markdownFiles = getFilesWithExtension(params.inputDirectoryPath, ".md")
-    outputFilePath = params.outputFilePath
-    typstCards = {"cards": []}
-    for file in markdownFiles:
+    md_files = get_files_with_extension(params.inputDirectoryPath, ".md")
+    out_file_path = params.outputFilePath
+    typst_cards = {"cards": []}
+    for file in md_files:
         try:
-            pageTypst = parseToTypstCard(file)
-            typstCards["cards"].append(asdict(pageTypst))
+            page_typst = parse_to_typst_card(file)
+            typst_cards["cards"].append(asdict(page_typst))
         except KeyError as identifier:
             print(f"🔴 '{file}' KeyError: {identifier}")
             pass
         except ValueError as identifier:
             print(f"🔴 '{file}' ValueError: {identifier}")
             pass
-    if typstCards["cards"].count == 0:
+    if typst_cards["cards"].count == 0:
         raise ValueError("No cards were generated.")
 
     # Iterate through each card to validate and convert its image.
-    for card in typstCards["cards"]:
+    for card in typst_cards["cards"]:
         if card["image"] == "":
             continue
         # Find the image file the card links to and check if it's in the input directory.
-        imageFilePath = Path(f"{params.inputDirectoryPath}/{card['image']}")
+        image_file = Path(f"{params.inputDirectoryPath}/{card['image']}")
         # If it isn't, set the card's image to "" so that the Typst template doesn't try to use a file that doesn't exist.
-        if not imageValidation.is_image(imageFilePath):
+        if not image_validation.is_image(image_file):
             card["image"] = ""
             continue
         # If it is, check whether its extension matches its MIME type.
-        if not imageValidation.does_extension_match(imageFilePath):
+        if not image_validation.does_extension_match(image_file):
             # If it doesn't, convert the image to the correct format.
-            newFilepath = imageValidation.new_file_from_mimetype(imageFilePath)
-            card["image"] = newFilepath.name
+            new_file: Path = image_validation.new_file_from_mimetype(image_file)
+            card["image"] = new_file.name
         # Copy the image to the output directory.
-        destinationFilePath = Path(outputFilePath).parent / card["image"]
-        copy(imageFilePath, destinationFilePath)
+        dest_file: Path = Path(out_file_path).parent / card["image"]
+        copy(image_file, dest_file)
 
     # Write the Typst YAML to a file
-    with open(outputFilePath, "w") as file:
-        yaml.dump(data=typstCards, stream=file, Dumper=yaml.SafeDumper)
-    print(f"Successfully wrote {outputFilePath}.")
+    with open(out_file_path, "w") as file:
+        yaml.dump(data=typst_cards, stream=file, Dumper=yaml.SafeDumper)
+    print(f"Successfully wrote {out_file_path}.")

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-import src.image_validation as imageValidation
+import src.image_validation as image_validation
 
 
 class TestImageValidation(unittest.TestCase):
@@ -19,19 +19,19 @@ class TestImageValidation(unittest.TestCase):
     def test_is_image(self):
         # Test 1: Check if a file is an image.
         # Expected Result: The function should return True for an image file and False for a text file.
-        self.assertTrue(imageValidation.is_image(self.IMAGE_FILE))
-        self.assertFalse(imageValidation.is_image(self.TEXT_FILE))
+        self.assertTrue(image_validation.is_image(self.IMAGE_FILE))
+        self.assertFalse(image_validation.is_image(self.TEXT_FILE))
 
     def test_does_extension_match(self):
         # Test 2: Check if the file extension matches the file type.
         # Expected Result: The function should return True for an image file and False for a mismatched file.
-        self.assertTrue(imageValidation.does_extension_match(self.IMAGE_FILE))
-        self.assertFalse(imageValidation.does_extension_match(self.MISMATCHED_FILE))
+        self.assertTrue(image_validation.does_extension_match(self.IMAGE_FILE))
+        self.assertFalse(image_validation.does_extension_match(self.MISMATCHED_FILE))
 
     def test_fix_mismatched_extension(self):
         # Test 3: Rename a file with a mismatched extension to match the file type.
         # Expected Result: The function should return a Path object with the correct extension.
-        new_filepath = imageValidation.new_file_from_mimetype(self.MISMATCHED_FILE)
+        new_filepath = image_validation.new_file_from_mimetype(self.MISMATCHED_FILE)
         self.assertEqual(new_filepath, self.MISMATCHED_FILE.with_suffix(".jpg"))
         self.assertTrue(new_filepath.exists())
 

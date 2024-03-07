@@ -33,7 +33,7 @@ class CardList:
 
 
 @dataclass
-class rpgCardInterface(ABC):
+class RpgCardInterface(ABC):
     """
     Abstract base class for data to be used in rpg-cards-typst-templates.
     """
@@ -41,31 +41,31 @@ class rpgCardInterface(ABC):
     def template(self) -> str:
         return ""
 
-    def bannerColor(self) -> str:
+    def banner_color(self) -> str:
         return ""
 
     def name(self) -> str:
         return ""
 
-    def bodyText(self) -> str:
+    def body_text(self) -> str:
         return ""
 
     def image(self) -> str:
         return ""
 
-    def nameSubtext(self) -> str:
+    def name_subtext(self) -> str:
         return ""
 
-    def imageSubtext(self) -> str:
+    def image_subtext(self) -> str:
         return ""
 
     def lists(self) -> list:
         return []
 
-    def validateSchema(self) -> bool:
+    def validate_schema(self) -> bool:
         # Get the schema from the repository.
-        SCHEMA_FILE: Path = Path("rpg-cards-typst-templates/schemas/data.schema.json")
-        with open(SCHEMA_FILE, "r") as file:
+        schema_file: Path = Path("rpg-cards-typst-templates/schemas/data.schema.json")
+        with open(schema_file, "r") as file:
             schema = json.load(file)
             # The schema assumes that the data is a list of cards.
             # Since this is a single card, we need to wrap it in a list.
@@ -77,13 +77,13 @@ class rpgCardInterface(ABC):
                 is_valid = False
             if not is_valid:
                 raise ValueError(
-                    f"The character_typst object does not validate against the schema: '{SCHEMA_FILE}'"
+                    f"The character_typst object does not validate against the schema: '{schema_file}'"
                 )
             return is_valid
 
 
 @dataclass
-class TypstCharacter(rpgCardInterface):
+class TypstCharacter(RpgCardInterface):
     """
     For exporting characters to rpg-cards-typst-templates.
     This assumes that the input character page uses my standard template.
@@ -91,21 +91,21 @@ class TypstCharacter(rpgCardInterface):
     """
 
     name: str
-    bodyText: str
+    body_text: str
     image: str
-    nameSubtext: str = ""
-    imageSubtext: str = ""
+    name_subtext: str = ""
+    image_subtext: str = ""
     lists: List[CardList] = field(default_factory=list)
     template: str = "landscape-content-left"
-    bannerColor: str = "#800000"  # maroon
+    banner_color: str = "#800000"  # maroon
 
     def __init__(self, character: obsidian_rpg.ObsidianCharacter):
         self.name = character.name
-        self.bodyText = character.description.overview if character.description else ""
+        self.body_text = character.description.overview if character.description else ""
         self.image = character.image
-        self.nameSubtext = character.physicalInfo.job
-        self.imageSubtext = (
-            f"{character.physicalInfo.gender} {character.physicalInfo.race}"
+        self.name_subtext = character.physical_info.job
+        self.image_subtext = (
+            f"{character.physical_info.gender} {character.physical_info.race}"
         )
         self.lists = TypstCharacter.__get_lists(character)
 
@@ -135,27 +135,27 @@ class TypstCharacter(rpgCardInterface):
         """
         Second list is an unordered and untitled list of location and group membership.
         """
-        secondList = CardList(items=[], title="")
+        second_list = CardList(items=[], title="")
         if character.location:
-            locationItem = CardList.ListItem(value=character.location, name="Location")
-            secondList.items.append(locationItem)
-        if character.groupName != "":
-            groupNameItem = CardList.ListItem(
-                value=character.groupName, name="Member of"
+            location_item = CardList.ListItem(value=character.location, name="Location")
+            second_list.items.append(location_item)
+        if character.group_name != "":
+            group_name_item = CardList.ListItem(
+                value=character.group_name, name="Member of"
             )
-            secondList.items.append(groupNameItem)
-        return secondList
+            second_list.items.append(group_name_item)
+        return second_list
 
 
-def fromPageObject(pageObject: obsidian_rpg.RpgData) -> rpgCardInterface:
+def from_page_object(page_object: obsidian_rpg.RpgData) -> RpgCardInterface:
     """
     Converts an Obsidian page object to a rpgCardInterface object.
     """
-    if isinstance(pageObject, obsidian_rpg.ObsidianCharacter):
-        return TypstCharacter(pageObject)
-    if isinstance(pageObject, obsidian_rpg.ObsidianItem):
+    if isinstance(page_object, obsidian_rpg.ObsidianCharacter):
+        return TypstCharacter(page_object)
+    if isinstance(page_object, obsidian_rpg.ObsidianItem):
         raise NotImplementedError("ObsidianItem is not yet implemented.")
-    if isinstance(pageObject, obsidian_rpg.ObsidianLocation):
+    if isinstance(page_object, obsidian_rpg.ObsidianLocation):
         raise NotImplementedError("ObsidianLocation is not yet implemented.")
     else:
-        raise ValueError(f"Unknown page type: {type(pageObject)}")
+        raise ValueError(f"Unknown page type: {type(page_object)}")

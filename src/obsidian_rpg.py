@@ -33,9 +33,9 @@ class RpgData:
     frontmatter: dict[str, str] = field(default_factory=dict)
     dataview_fields: dict[str, list[str]] = field(default_factory=dict)
 
-    def __init__(self, markdownText: str):
+    def __init__(self, markdown_text: str):
         # Parse string to object
-        page = ObsidianPageData(markdownText)
+        page = ObsidianPageData(markdown_text)
 
         # The name of the character should be H1, which is the key of the top-level element.
         self.name = list(page.content.keys())[0]
@@ -90,20 +90,20 @@ class ObsidianCharacter(RpgData):
         frustration: str = ""
 
     name: str = ""
-    physicalInfo: PhysicalInfo = field(default_factory=PhysicalInfo)
+    physical_info: PhysicalInfo = field(default_factory=PhysicalInfo)
     description: Description = field(default_factory=Description)
     personality: Personality = field(default_factory=Personality)
     hooks: Hooks = field(default_factory=Hooks)
     image: str = ""
     location: str = ""
-    groupName: str = ""
-    groupTitle: str = ""
-    groupRank: str = ""
+    group_name: str = ""
+    group_title: str = ""
+    group_rank: str = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.physicalInfo = ObsidianCharacter.PhysicalInfo(
+        self.physical_info = ObsidianCharacter.PhysicalInfo(
             gender=self.dataview_fields["gender"][0],
             race=self.dataview_fields["race"][0],
             job=self.dataview_fields["class"][0],
@@ -136,16 +136,16 @@ class ObsidianCharacter(RpgData):
             )
         # Fill in the rest of the fields
         self.location = self.frontmatter["location"]
-        self.groupName = self.dataview_fields["group-name"][0]
-        self.groupTitle = self.dataview_fields["group-title"][0]
-        self.groupRank = self.dataview_fields["group-rank"][0]
+        self.group_name = self.dataview_fields["group-name"][0]
+        self.group_title = self.dataview_fields["group-title"][0]
+        self.group_rank = self.dataview_fields["group-rank"][0]
 
 
 @dataclass
 class ObsidianItem(RpgData):
     """This is the format that my Obsidian item template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs."""
 
-    itemType: str = ""
+    item_type: str = ""
     rarity: str = ""
     cost: str = ""
     weight: str = ""
@@ -155,7 +155,7 @@ class ObsidianItem(RpgData):
         super().__init__(*args, **kwargs)
 
         self.description = self.content["Description"]
-        self.itemType = self.frontmatter["tags"][0]
+        self.item_type = self.frontmatter["tags"][0]
         self.rarity = self.dataview_fields["rarity"][0]
         self.cost = self.dataview_fields["cost"][0]
         self.weight = self.dataview_fields["weight"][0]
@@ -179,7 +179,7 @@ class ObsidianItemArmor(ObsidianItem):
     Additional fields for armor.
     """
 
-    armorClass: str = ""
+    armor_class: str = ""
     stealth: str = ""
     # TODO: Implement the full class for armor.
 
@@ -191,7 +191,7 @@ class ObsidianLocation(RpgData):
     """
 
     occupants: str = ""
-    storyHook: str = ""
+    story_hook: str = ""
     location: str = ""
 
     def __init__(self, *args, **kwargs):
@@ -200,7 +200,7 @@ class ObsidianLocation(RpgData):
     def __post_init__(self):
         self.description = self.content["Description"]
         self.occupants = self.content["Occupants"]
-        self.storyHook = self.content["Story Hook"]
+        self.story_hook = self.content["Story Hook"]
 
 
 def get_lower_keys(content: dict[str, str]) -> dict[str, str]:
@@ -216,7 +216,7 @@ def get_lower_keys(content: dict[str, str]) -> dict[str, str]:
     return lower_keys
 
 
-def __getItemType(text: str) -> ObsidianItemTypes:
+def __get_item_type(text: str) -> ObsidianItemTypes:
     """
     Identify the type of an Obsidian item based on its frontmatter tags.
     """
@@ -233,8 +233,8 @@ def __getItemType(text: str) -> ObsidianItemTypes:
 
 
 def __new_item(text: str) -> ObsidianItem:
-    itemType = __getItemType(text)
-    match itemType:
+    item_type = __get_item_type(text)
+    match item_type:
         case ObsidianItemTypes.WEAPON:
             return ObsidianItemWeapon(text)
         case ObsidianItemTypes.ARMOR:
@@ -242,10 +242,10 @@ def __new_item(text: str) -> ObsidianItem:
         case ObsidianItemTypes.ITEM:
             return ObsidianItem(text)
         case _:
-            raise ValueError(f"Item type {itemType} not recognized.")
+            raise ValueError(f"Item type {item_type} not recognized.")
 
 
-def getPageType(text: str) -> ObsidianPageTypes:
+def get_page_type(text: str) -> ObsidianPageTypes:
     """
     Identify the type of an Obsidian page based on its frontmatter tags.
     """
@@ -263,7 +263,7 @@ def getPageType(text: str) -> ObsidianPageTypes:
         return ObsidianPageTypes.UNKNOWN
 
 
-def newPage(text: str) -> RpgData:
+def new_page(text: str) -> RpgData:
     """Main function for creating a new Obsidian page object.
 
     Args:
@@ -275,8 +275,8 @@ def newPage(text: str) -> RpgData:
     Returns:
         RpgData: An Obsidian page object.
     """
-    pageType = getPageType(text)
-    match pageType:
+    page_type = get_page_type(text)
+    match page_type:
         case ObsidianPageTypes.CHARACTER:
             return ObsidianCharacter(text)
         case ObsidianPageTypes.ITEM:
@@ -284,4 +284,4 @@ def newPage(text: str) -> RpgData:
         case ObsidianPageTypes.LOCATION:
             return ObsidianLocation(text)
         case _:
-            raise ValueError(f"Page type {pageType} not recognized.")
+            raise ValueError(f"Page type {page_type} not recognized.")
