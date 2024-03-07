@@ -38,12 +38,14 @@ def getFilesWithExtension(directoryPath: str, extension: str) -> List[str]:
 
 
 if __name__ == "__main__":
+    # Get all markdown files in the input directory
     markdownFiles = getFilesWithExtension(params.inputDirectoryPath, ".md")
     outputFilePath = params.outputFilePath
     typstCards = {"cards": []}
     for file in markdownFiles:
         with open(file, "r") as file:
             try:
+                # Parse the markdown file into a Typst card and add it to the list
                 text: str = file.read()
                 pageObject: obsidianPages.RpgData = obsidianPages.newPage(text)
                 pageTypst: rpgCardInterface = typstTemplates.fromPageObject(pageObject)
@@ -56,6 +58,7 @@ if __name__ == "__main__":
                 pass
     if typstCards["cards"].count == 0:
         raise ValueError("No cards were generated.")
+    # Write the Typst YAML to a file
     with open(outputFilePath, "w") as file:
         yaml.dump(data=typstCards, stream=file, Dumper=yaml.SafeDumper)
     print(f"Successfully wrote {outputFilePath}.")
