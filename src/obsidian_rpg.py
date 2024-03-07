@@ -49,10 +49,10 @@ class TypstCard:
     Class used to export data to rpg-cards-typst-templates.
     """
 
-    template: str = ""
+    template: str
+    name: str
+    body_text: str
     banner_color: str = "#800000"  # maroon
-    name: str = ""
-    body_text: str = ""
     image: str = ""
     name_subtext: str = ""
     image_subtext: str = ""
@@ -213,6 +213,7 @@ class ObsidianCharacter(RpgData):
             image_subtext=f"{self.physical_info.gender} {self.physical_info.race}",
             lists=self.__get_lists(),
             banner_color="#800000",  # maroon
+            template="landscape-content-left",
         )
 
     def __get_lists(self) -> list[CardList]:
@@ -277,6 +278,8 @@ class ObsidianItem(RpgData):
             name_subtext=self.__get_subtext(),
             image_subtext="",
             lists=self.__get_lists(),
+            banner_color="#195905",  # Lincoln Green
+            template="landscape-content-right",
         )
 
     def __get_lists(self) -> list[CardList]:
@@ -355,6 +358,8 @@ class ObsidianLocation(RpgData):
                     title="",
                 )
             ],
+            banner_color="#191970",  # midnight blue
+            template="landscape-content-right",
         )
 
 
