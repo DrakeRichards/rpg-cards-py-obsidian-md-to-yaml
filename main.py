@@ -8,7 +8,6 @@ import yaml
 
 import src.image_validation as image_validation
 import src.obsidian_rpg as obsidian_rpg
-import src.typst as typst
 
 
 def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
@@ -29,7 +28,7 @@ def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
     return [f"{directory_path}/{file}" for file in markdown_files]
 
 
-def parse_to_typst_card(filepath: str) -> typst.RpgCardInterface:
+def parse_md_to_typst_card(filepath: str) -> obsidian_rpg.TypstCard:
     """Parse an Obsidian markdown file into a Typst card.
 
     Args:
@@ -41,30 +40,29 @@ def parse_to_typst_card(filepath: str) -> typst.RpgCardInterface:
     with open(filepath, "r") as file:
         text: str = file.read()
         page_object: obsidian_rpg.RpgData = obsidian_rpg.new_page(text)
-        page_typst: typst.RpgCardInterface = typst.from_page_object(page_object)
+        page_typst: obsidian_rpg.TypstCard = page_object.to_typst_card()
         return page_typst
 
 
-# Parser setup
-parser = argparse.ArgumentParser(
-    description="Converts Obsidian markdown files to Typst YAML."
-)
-parser.add_argument(
-    "inputDirectoryPath",
-    help="The path to the directory containing the markdown files.",
-)
-parser.add_argument("outputFilePath", help="The path to the output YAML file.")
-params = parser.parse_args()
-
-
 if __name__ == "__main__":
+    # Parser setup
+    parser = argparse.ArgumentParser(
+        description="Converts Obsidian markdown files to Typst YAML."
+    )
+    parser.add_argument(
+        "inputDirectoryPath",
+        help="The path to the directory containing the markdown files.",
+    )
+    parser.add_argument("outputFilePath", help="The path to the output YAML file.")
+    params = parser.parse_args()
+
     # Get all markdown files in the input directory
     md_files = get_files_with_extension(params.inputDirectoryPath, ".md")
     out_file_path = params.outputFilePath
-    typst_cards = {"cards": []}
+    typst_cards: dict[str, list[dict]] = {"cards": []}
     for file in md_files:
         try:
-            page_typst = parse_to_typst_card(file)
+            page_typst = parse_md_to_typst_card(file)
             typst_cards["cards"].append(asdict(page_typst))
         except KeyError as identifier:
             print(f"🔴 '{file}' KeyError: {identifier}")

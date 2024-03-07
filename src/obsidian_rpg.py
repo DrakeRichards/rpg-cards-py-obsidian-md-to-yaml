@@ -1,7 +1,11 @@
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
 from enum import Enum
+from pathlib import Path
+from typing import List
 
 from dacite import from_dict
+from jsonschema import Draft7Validator
 
 from src.obsidian_tools import ObsidianPageData
 
@@ -18,6 +22,57 @@ class ObsidianItemTypes(Enum):
     ARMOR = "armor"
     ITEM = "item"
     UNKNOWN = "unknown"
+
+
+@dataclass
+class CardList:
+    """
+    A list for use in rpg-cards-typst-templates.
+    """
+
+    @dataclass
+    class ListItem:
+        """
+        A list item for use in rpg-cards-typst-templates.
+        """
+
+        value: str
+        name: str = ""
+
+    items: List[ListItem]
+    title: str = ""
+
+
+@dataclass
+class TypstCard:
+    """
+    Class used to export data to rpg-cards-typst-templates.
+    """
+
+    template: str = ""
+    banner_color: str = "#800000"  # maroon
+    name: str = ""
+    body_text: str = ""
+    image: str = ""
+    name_subtext: str = ""
+    image_subtext: str = ""
+    lists: List[CardList] = field(default_factory=list)
+
+    def validate_schema(self) -> bool:
+        # Get the schema from the repository.
+        schema_file: Path = Path("rpg-cards-typst-templates/schemas/data.schema.json")
+        with open(schema_file, "r") as file:
+            schema: dict[str, str] = json.load(file)
+            # The schema assumes that the data is a list of cards.
+            # Since this is a single card, we need to wrap it in a list.
+            card: dict = {"cards": [asdict(self)]}
+            card_validator = Draft7Validator(schema)
+            errors = sorted(card_validator.iter_errors(card), key=lambda e: e.path)
+            if len(errors) == 0:
+                return True
+            for error in errors:
+                print(error)
+            return False
 
 
 @dataclass
@@ -60,6 +115,12 @@ class RpgData:
         # Frontmatter is also optional, so I need to check for that.
         if page.frontmatter:
             self.frontmatter = page.frontmatter
+
+    def to_typst_card(self) -> TypstCard:
+        """
+        Converts the data to a TypstCard.
+        """
+        raise NotImplementedError("This method should be overridden in subclasses.")
 
 
 @dataclass
@@ -140,6 +201,50 @@ class ObsidianCharacter(RpgData):
         self.group_title = self.dataview_fields["group-title"][0]
         self.group_rank = self.dataview_fields["group-rank"][0]
 
+    def to_typst_card(self) -> TypstCard:
+        """
+        Converts the ObsidianCharacter to a TypstCard.
+        """
+        return TypstCard(
+            name=self.name,
+            body_text=self.description.overview if self.description else "",
+            image=self.image,
+            name_subtext=self.physical_info.job,
+            image_subtext=f"{self.physical_info.gender} {self.physical_info.race}",
+            lists=self.__get_lists(),
+            banner_color="#800000",  # maroon
+        )
+
+    def __get_lists(self) -> list[CardList]:
+        lists = [
+            self.__get_personality_list(),
+            self.__get_secondary_list(),
+        ]
+        return lists
+
+    def __get_personality_list(self) -> CardList:
+        return CardList(
+            items=[
+                CardList.ListItem(value=self.personality.quirk, name="Quirk"),
+                CardList.ListItem(value=self.personality.likes, name="Likes"),
+                CardList.ListItem(value=self.personality.dislikes, name="Dislikes"),
+            ],
+            title="",
+        )
+
+    def __get_secondary_list(self) -> CardList:
+        """
+        Second list is an unordered and untitled list of location and group membership.
+        """
+        second_list = CardList(items=[], title="")
+        if self.location:
+            location_item = CardList.ListItem(value=self.location, name="Location")
+            second_list.items.append(location_item)
+        if self.group_name != "":
+            group_name_item = CardList.ListItem(value=self.group_name, name="Member of")
+            second_list.items.append(group_name_item)
+        return second_list
+
 
 @dataclass
 class ObsidianItem(RpgData):
@@ -160,6 +265,36 @@ class ObsidianItem(RpgData):
         self.cost = self.dataview_fields["cost"][0]
         self.weight = self.dataview_fields["weight"][0]
         self.properties = self.dataview_fields["properties"][0]
+
+    def to_typst_card(self) -> TypstCard:
+        """
+        Converts the ObsidianItem to a TypstCard.
+        """
+        return TypstCard(
+            name=self.name,
+            body_text=self.description,
+            image=self.image,
+            name_subtext=self.__get_subtext(),
+            image_subtext="",
+            lists=self.__get_lists(),
+        )
+
+    def __get_lists(self) -> list[CardList]:
+        lists = [
+            CardList(
+                items=[
+                    CardList.ListItem(value=self.cost, name="Cost"),
+                    CardList.ListItem(value=self.weight, name="Weight"),
+                    CardList.ListItem(value=self.properties, name="Properties"),
+                ],
+                title="",
+            )
+        ]
+        return lists
+
+    def __get_subtext(self) -> str:
+        subtext = f"{self.rarity} {self.item_type}"
+        return subtext
 
 
 @dataclass
@@ -197,10 +332,30 @@ class ObsidianLocation(RpgData):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __post_init__(self):
         self.description = self.content["Description"]
         self.occupants = self.content["Occupants"]
         self.story_hook = self.content["Story Hook"]
+
+    def to_typst_card(self) -> TypstCard:
+        """
+        Converts the ObsidianLocation to a TypstCard.
+        """
+        return TypstCard(
+            name=self.name,
+            body_text=self.description,
+            image=self.image,
+            name_subtext=self.location,
+            image_subtext="",
+            lists=[
+                CardList(
+                    items=[
+                        CardList.ListItem(value=self.occupants, name="Occupants"),
+                        CardList.ListItem(value=self.story_hook, name="Story Hook"),
+                    ],
+                    title="",
+                )
+            ],
+        )
 
 
 def get_lower_keys(content: dict[str, str]) -> dict[str, str]:

@@ -10,7 +10,7 @@ location: "[[The Tavern]]"
 
 _(gender:: Male) (race:: Human) (class:: Barbarian)_
 
-![[bob.png]]
+![[image-good.jpg]]
 
 ## Description
 

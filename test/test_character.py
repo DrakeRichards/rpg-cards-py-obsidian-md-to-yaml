@@ -6,7 +6,6 @@ import yaml
 from jsonschema import ValidationError
 
 import src.obsidian_rpg as obsidian_rpg
-from src.typst import TypstCharacter as TypstCharacter
 
 
 class TestCharacter(unittest.TestCase):
@@ -22,6 +21,17 @@ class TestCharacter(unittest.TestCase):
         # Read the character markdown file.
         character_markdown_file: Path = Path("test/files/standard-character.md")
         self.CHARACTER_MARKDOWN_STANDARD: str = character_markdown_file.read_text()
+        # Generate an ObsidianCharacter object from the character markdown file.
+        self.character_data: obsidian_rpg.ObsidianCharacter = (
+            obsidian_rpg.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
+        )
+        # Generate a TypstCharacter object from the ObsidianCharacter object.
+        self.character_typst: obsidian_rpg.TypstCard = (
+            self.character_data.to_typst_card()
+        )
+        self.character_dict: dict = asdict(self.character_typst)
+        self.cards: dict[str, list[dict]] = {"cards": [self.character_dict]}
+        self.cards_yaml: str = yaml.dump(self.cards)
 
     def test_identify_page_type(self):
         # Test 1: Properly identify a given markdown file as a character.
@@ -32,50 +42,28 @@ class TestCharacter(unittest.TestCase):
     def test_generate_obsidian_character(self):
         # Test 2: Generate an ObsidianCharacter object from a character markdown string.
         # Expected Result: The function should return an ObsidianCharacter object.
-        character_data: obsidian_rpg.ObsidianCharacter = obsidian_rpg.ObsidianCharacter(
-            self.CHARACTER_MARKDOWN_STANDARD
-        )
-        self.assertIsInstance(character_data, obsidian_rpg.ObsidianCharacter)
+        self.assertIsInstance(self.character_data, obsidian_rpg.ObsidianCharacter)
 
     def test_generate_typst_character(self):
         # Test 3: Generate a TypstCharacter object from an ObsidianCharacter object.
         # Expected Result: The function should return a TypstCharacter object.
-        character_data: obsidian_rpg.ObsidianCharacter = obsidian_rpg.ObsidianCharacter(
-            self.CHARACTER_MARKDOWN_STANDARD
-        )
-        character_typst: TypstCharacter = TypstCharacter(character_data)
-        self.assertIsInstance(character_typst, TypstCharacter)
+        self.assertIsInstance(self.character_typst, obsidian_rpg.TypstCard)
 
     def test_validate_typst_character(self):
         # Test 4: Validate the TypstCharacter object using the rpgCardInterface.validateSchema method.
         # Expected Result: The function should return True.
-        character_data: obsidian_rpg.ObsidianCharacter = obsidian_rpg.ObsidianCharacter(
-            self.CHARACTER_MARKDOWN_STANDARD
-        )
-        character_typst: TypstCharacter = TypstCharacter(character_data)
-        self.assertTrue(character_typst.validate_schema())
+        self.assertTrue(self.character_typst.validate_schema())
 
     def test_generate_data_yaml(self):
         # Test 5: Generate a data.yaml file from the TypstCharacter object.
         # Expected Result: The function should return a string.
-        character_data: obsidian_rpg.ObsidianCharacter = obsidian_rpg.ObsidianCharacter(
-            self.CHARACTER_MARKDOWN_STANDARD
-        )
-        character_typst: TypstCharacter = TypstCharacter(character_data)
-        character_dict: dict = asdict(character_typst)
-        data = {"cards": [character_dict]}
-        data_yaml: str = yaml.dump(data)
-        self.assertIsInstance(data_yaml, str)
+        self.assertIsInstance(self.cards_yaml, str)
 
     def test_validate_data_yaml(self):
         # Test 6: Validate the data.yaml file against the remote rpg-cards-typst schema.
         # Expected Result: The function should return True.
-        character_data: obsidian_rpg.ObsidianCharacter = obsidian_rpg.ObsidianCharacter(
-            self.CHARACTER_MARKDOWN_STANDARD
-        )
-        character_typst: TypstCharacter = TypstCharacter(character_data)
         try:
-            character_typst.validate_schema()
+            self.character_typst.validate_schema()
             is_valid = True
         except ValidationError:
             is_valid = False

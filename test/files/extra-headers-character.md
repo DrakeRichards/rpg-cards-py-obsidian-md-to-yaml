@@ -12,7 +12,7 @@ obsidianUIMode: preview
 
 _(gender:: Male) (race:: Halfling) (class:: Innkeeper)_
 
-![[1708902732.png|+character]]
+![[image-good.jpg|+character]]
 
 ## Description
 
