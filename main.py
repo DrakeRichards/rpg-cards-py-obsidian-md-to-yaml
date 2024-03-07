@@ -43,10 +43,19 @@ if __name__ == "__main__":
     typstCards = {"cards": []}
     for file in markdownFiles:
         with open(file, "r") as file:
-            text: str = file.read()
-            pageObject: obsidianPages.RpgData = obsidianPages.newPage(text)
-            pageTypst: rpgCardInterface = typstTemplates.fromPageObject(pageObject)
-            typstCards["cards"].append(asdict(pageTypst))
+            try:
+                text: str = file.read()
+                pageObject: obsidianPages.RpgData = obsidianPages.newPage(text)
+                pageTypst: rpgCardInterface = typstTemplates.fromPageObject(pageObject)
+                typstCards["cards"].append(asdict(pageTypst))
+            except KeyError as identifier:
+                print(f"🔴 '{file.name}' KeyError: {identifier}")
+                pass
+            except ValueError as identifier:
+                print(f"🔴 '{file.name}' ValueError: {identifier}")
+                pass
+    if typstCards["cards"].count == 0:
+        raise ValueError("No cards were generated.")
     with open(outputFilePath, "w") as file:
         yaml.dump(data=typstCards, stream=file, Dumper=yaml.SafeDumper)
     print(f"Successfully wrote {outputFilePath}.")

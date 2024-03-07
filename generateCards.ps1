@@ -10,10 +10,9 @@
 
 # Activates the virtual environment and installs the required packages.
 & 'venv/Scripts/activate'
-python -m pip install -r requirements.txt
 
 # Run the Python script to convert the markdown files to a single data.yaml file.
 python main.py 'in' 'rpg-cards-typst-templates/in/data.yaml'
 
 # Compile the Typst cards from the data.yaml file.
-typst compile --root 'rpg-cards-typst-templates' 'rpg-cards-typst-templates/in/data.yaml' 'out/cards.pdf'
+typst compile --root 'rpg-cards-typst-templates' 'rpg-cards-typst-templates/src/cards.typ' 'out/cards.pdf'
