@@ -2,11 +2,15 @@
 Convert an Obsidian page object to an object that will conform with the schema for rpg-cards-typst-templates.
 """
 
-from dataclasses import dataclass, field
+import json
+from abc import ABC
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import List
 
+from jsonschema import ValidationError, validate
+
 import src.obsidian_page_types as obsidianPages
-from src.typst_card_abc import rpgCardInterface
 
 
 @dataclass
@@ -26,6 +30,56 @@ class CardList:
 
     items: List[ListItem]
     title: str = ""
+
+
+@dataclass
+class rpgCardInterface(ABC):
+    """
+    Abstract base class for data to be used in rpg-cards-typst-templates.
+    """
+
+    def template(self) -> str:
+        return ""
+
+    def bannerColor(self) -> str:
+        return ""
+
+    def name(self) -> str:
+        return ""
+
+    def bodyText(self) -> str:
+        return ""
+
+    def image(self) -> str:
+        return ""
+
+    def nameSubtext(self) -> str:
+        return ""
+
+    def imageSubtext(self) -> str:
+        return ""
+
+    def lists(self) -> list:
+        return []
+
+    def validateSchema(self) -> bool:
+        # Get the schema from the repository.
+        SCHEMA_FILE: Path = Path("rpg-cards-typst-templates/schemas/data.schema.json")
+        with open(SCHEMA_FILE, "r") as file:
+            schema = json.load(file)
+            # The schema assumes that the data is a list of cards.
+            # Since this is a single card, we need to wrap it in a list.
+            card: dict = {"cards": [asdict(self)]}
+            try:
+                validate(instance=card, schema=schema)
+                is_valid = True
+            except ValidationError:
+                is_valid = False
+            if not is_valid:
+                raise ValueError(
+                    f"The character_typst object does not validate against the schema: '{SCHEMA_FILE}'"
+                )
+            return is_valid
 
 
 @dataclass
