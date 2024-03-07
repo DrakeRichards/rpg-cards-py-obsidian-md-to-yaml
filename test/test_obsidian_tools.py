@@ -1,6 +1,6 @@
 import unittest
 
-import src.obsidian_tools as ot
+import src.md_obsidian_tools as ot
 
 
 class TestObsidianTools(unittest.TestCase):

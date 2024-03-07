@@ -7,8 +7,8 @@ from typing import List
 import yaml
 
 import src.image_validation as imageValidation
-import src.obsidian_page_types as obsidianPages
-import src.typst_template_types as typstTemplates
+import src.obsidian as obsidian
+import src.typst as typst
 
 
 def getFilesWithExtension(directoryPath: str, extension: str) -> List[str]:
@@ -29,7 +29,7 @@ def getFilesWithExtension(directoryPath: str, extension: str) -> List[str]:
     return [f"{directoryPath}/{file}" for file in markdownFiles]
 
 
-def parseToTypstCard(filepath: str) -> typstTemplates.rpgCardInterface:
+def parseToTypstCard(filepath: str) -> typst.rpgCardInterface:
     """Parse an Obsidian markdown file into a Typst card.
 
     Args:
@@ -40,10 +40,8 @@ def parseToTypstCard(filepath: str) -> typstTemplates.rpgCardInterface:
     """
     with open(filepath, "r") as file:
         text: str = file.read()
-        pageObject: obsidianPages.RpgData = obsidianPages.newPage(text)
-        pageTypst: typstTemplates.rpgCardInterface = typstTemplates.fromPageObject(
-            pageObject
-        )
+        pageObject: obsidian.RpgData = obsidian.newPage(text)
+        pageTypst: typst.rpgCardInterface = typst.fromPageObject(pageObject)
         return pageTypst
 
 

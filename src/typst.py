@@ -10,7 +10,7 @@ from typing import List
 
 from jsonschema import ValidationError, validate
 
-import src.obsidian_page_types as obsidianPages
+import src.obsidian as obsidian
 
 
 @dataclass
@@ -99,7 +99,7 @@ class TypstCharacter(rpgCardInterface):
     template: str = "landscape-content-left"
     bannerColor: str = "#800000"  # maroon
 
-    def __init__(self, character: obsidianPages.ObsidianCharacter):
+    def __init__(self, character: obsidian.ObsidianCharacter):
         self.name = character.name
         self.bodyText = character.description.overview if character.description else ""
         self.image = character.image
@@ -110,7 +110,7 @@ class TypstCharacter(rpgCardInterface):
         self.lists = TypstCharacter.__get_lists(character)
 
     @staticmethod
-    def __get_lists(character: obsidianPages.ObsidianCharacter) -> List[CardList]:
+    def __get_lists(character: obsidian.ObsidianCharacter) -> List[CardList]:
         lists = [
             TypstCharacter.__get_personality_list(character),
             TypstCharacter.__get_secondary_list(character),
@@ -118,7 +118,7 @@ class TypstCharacter(rpgCardInterface):
         return lists
 
     @staticmethod
-    def __get_personality_list(character: obsidianPages.ObsidianCharacter) -> CardList:
+    def __get_personality_list(character: obsidian.ObsidianCharacter) -> CardList:
         return CardList(
             items=[
                 CardList.ListItem(value=character.personality.quirk, name="Quirk"),
@@ -131,7 +131,7 @@ class TypstCharacter(rpgCardInterface):
         )
 
     @staticmethod
-    def __get_secondary_list(character: obsidianPages.ObsidianCharacter) -> CardList:
+    def __get_secondary_list(character: obsidian.ObsidianCharacter) -> CardList:
         """
         Second list is an unordered and untitled list of location and group membership.
         """
@@ -147,15 +147,15 @@ class TypstCharacter(rpgCardInterface):
         return secondList
 
 
-def fromPageObject(pageObject: obsidianPages.RpgData) -> rpgCardInterface:
+def fromPageObject(pageObject: obsidian.RpgData) -> rpgCardInterface:
     """
     Converts an Obsidian page object to a rpgCardInterface object.
     """
-    if isinstance(pageObject, obsidianPages.ObsidianCharacter):
+    if isinstance(pageObject, obsidian.ObsidianCharacter):
         return TypstCharacter(pageObject)
-    if isinstance(pageObject, obsidianPages.ObsidianItem):
+    if isinstance(pageObject, obsidian.ObsidianItem):
         raise NotImplementedError("ObsidianItem is not yet implemented.")
-    if isinstance(pageObject, obsidianPages.ObsidianLocation):
+    if isinstance(pageObject, obsidian.ObsidianLocation):
         raise NotImplementedError("ObsidianLocation is not yet implemented.")
     else:
         raise ValueError(f"Unknown page type: {type(pageObject)}")

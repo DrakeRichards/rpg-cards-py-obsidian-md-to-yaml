@@ -5,8 +5,8 @@ from pathlib import Path
 import yaml
 from jsonschema import ValidationError
 
-import src.obsidian_page_types as obsidianPages
-from src.typst_template_types import TypstCharacter as TypstCharacter
+import src.obsidian as obsidian
+from src.typst import TypstCharacter as TypstCharacter
 
 
 class TestCharacter(unittest.TestCase):
@@ -26,22 +26,22 @@ class TestCharacter(unittest.TestCase):
     def test_identify_page_type(self):
         # Test 1: Properly identify a given markdown file as a character.
         # Expected Result: The function should return "character".
-        pageType = obsidianPages.getPageType(self.CHARACTER_MARKDOWN_STANDARD)
-        self.assertEqual(pageType, obsidianPages.ObsidianPageTypes.CHARACTER)
+        pageType = obsidian.getPageType(self.CHARACTER_MARKDOWN_STANDARD)
+        self.assertEqual(pageType, obsidian.ObsidianPageTypes.CHARACTER)
 
     def test_generate_obsidian_character(self):
         # Test 2: Generate an ObsidianCharacter object from a character markdown string.
         # Expected Result: The function should return an ObsidianCharacter object.
-        character_data: obsidianPages.ObsidianCharacter = (
-            obsidianPages.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
+        character_data: obsidian.ObsidianCharacter = obsidian.ObsidianCharacter(
+            self.CHARACTER_MARKDOWN_STANDARD
         )
-        self.assertIsInstance(character_data, obsidianPages.ObsidianCharacter)
+        self.assertIsInstance(character_data, obsidian.ObsidianCharacter)
 
     def test_generate_typst_character(self):
         # Test 3: Generate a TypstCharacter object from an ObsidianCharacter object.
         # Expected Result: The function should return a TypstCharacter object.
-        character_data: obsidianPages.ObsidianCharacter = (
-            obsidianPages.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
+        character_data: obsidian.ObsidianCharacter = obsidian.ObsidianCharacter(
+            self.CHARACTER_MARKDOWN_STANDARD
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
         self.assertIsInstance(character_typst, TypstCharacter)
@@ -49,8 +49,8 @@ class TestCharacter(unittest.TestCase):
     def test_validate_typst_character(self):
         # Test 4: Validate the TypstCharacter object using the rpgCardInterface.validateSchema method.
         # Expected Result: The function should return True.
-        character_data: obsidianPages.ObsidianCharacter = (
-            obsidianPages.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
+        character_data: obsidian.ObsidianCharacter = obsidian.ObsidianCharacter(
+            self.CHARACTER_MARKDOWN_STANDARD
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
         self.assertTrue(character_typst.validateSchema())
@@ -58,8 +58,8 @@ class TestCharacter(unittest.TestCase):
     def test_generate_data_yaml(self):
         # Test 5: Generate a data.yaml file from the TypstCharacter object.
         # Expected Result: The function should return a string.
-        character_data: obsidianPages.ObsidianCharacter = (
-            obsidianPages.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
+        character_data: obsidian.ObsidianCharacter = obsidian.ObsidianCharacter(
+            self.CHARACTER_MARKDOWN_STANDARD
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
         character_dict: dict = asdict(character_typst)
@@ -70,8 +70,8 @@ class TestCharacter(unittest.TestCase):
     def test_validate_data_yaml(self):
         # Test 6: Validate the data.yaml file against the remote rpg-cards-typst schema.
         # Expected Result: The function should return True.
-        character_data: obsidianPages.ObsidianCharacter = (
-            obsidianPages.ObsidianCharacter(self.CHARACTER_MARKDOWN_STANDARD)
+        character_data: obsidian.ObsidianCharacter = obsidian.ObsidianCharacter(
+            self.CHARACTER_MARKDOWN_STANDARD
         )
         character_typst: TypstCharacter = TypstCharacter(character_data)
         try:
@@ -90,10 +90,10 @@ class EdgeCases(unittest.TestCase):
         # Expected Result: The function should return an ObsidianCharacter object, and the extra headers should be ignored.
         character_markdown_file: Path = Path("test/files/extra-headers-character.md")
         character_markdown: str = character_markdown_file.read_text()
-        character_data: obsidianPages.ObsidianCharacter = (
-            obsidianPages.ObsidianCharacter(character_markdown)
+        character_data: obsidian.ObsidianCharacter = obsidian.ObsidianCharacter(
+            character_markdown
         )
-        self.assertIsInstance(character_data, obsidianPages.ObsidianCharacter)
+        self.assertIsInstance(character_data, obsidian.ObsidianCharacter)
 
 
 if __name__ == "__main__":

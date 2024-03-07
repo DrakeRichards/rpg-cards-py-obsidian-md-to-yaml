@@ -3,7 +3,7 @@ from enum import Enum
 
 from dacite import from_dict
 
-from src.obsidian_tools import ObsidianPageData
+from src.md_obsidian_tools import ObsidianPageData
 
 
 class ObsidianPageTypes(Enum):
