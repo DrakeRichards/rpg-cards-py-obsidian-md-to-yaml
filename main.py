@@ -7,7 +7,7 @@ from typing import List
 import yaml
 
 import src.image_validation as imageValidation
-import src.obsidian as obsidian
+import src.obsidian_rpg as obsidian_rpg
 import src.typst as typst
 
 
@@ -40,7 +40,7 @@ def parseToTypstCard(filepath: str) -> typst.rpgCardInterface:
     """
     with open(filepath, "r") as file:
         text: str = file.read()
-        pageObject: obsidian.RpgData = obsidian.newPage(text)
+        pageObject: obsidian_rpg.RpgData = obsidian_rpg.newPage(text)
         pageTypst: typst.rpgCardInterface = typst.fromPageObject(pageObject)
         return pageTypst
 
