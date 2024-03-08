@@ -410,14 +410,13 @@ def get_page_type(text: str) -> ObsidianPageTypes:
     Identify the type of an Obsidian page based on its frontmatter tags.
     """
     page = ObsidianPageData(text)
-    if "tags" not in page.frontmatter:
+    if len(page.tags) == 0:
         return ObsidianPageTypes.UNKNOWN
-    tags = page.frontmatter["tags"]
-    if "character" in tags:
+    if "character" in page.tags:
         return ObsidianPageTypes.CHARACTER
-    elif "item" in tags:
+    elif "item" in page.tags:
         return ObsidianPageTypes.ITEM
-    elif "location" in tags:
+    elif "location" in page.tags:
         return ObsidianPageTypes.LOCATION
     else:
         return ObsidianPageTypes.UNKNOWN

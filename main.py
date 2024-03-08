@@ -8,6 +8,7 @@ import yaml
 
 import src.image_validation as image_validation
 import src.obsidian_rpg as obsidian_rpg
+import src.obsidian_tools as ot
 
 
 def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
@@ -39,7 +40,8 @@ def parse_md_to_typst_card(filepath: str) -> obsidian_rpg.TypstCard:
     """
     with open(filepath, "r") as file:
         text: str = file.read()
-        page_object: obsidian_rpg.RpgData = obsidian_rpg.new_page(text)
+        cleaned_text = ot.replace_uncommon_characters(text)
+        page_object: obsidian_rpg.RpgData = obsidian_rpg.new_page(cleaned_text)
         page_typst: obsidian_rpg.TypstCard = page_object.to_typst_card()
         return page_typst
 
@@ -70,6 +72,9 @@ if __name__ == "__main__":
         except ValueError as identifier:
             print(f"🔴 '{file}' ValueError: {identifier}")
             pass
+        except AttributeError as identifier:
+            print(f"🔴 '{file}' AttributeError: {identifier}")
+            pass
     if typst_cards["cards"].count == 0:
         raise ValueError("No cards were generated.")
 
@@ -80,6 +85,9 @@ if __name__ == "__main__":
         # Find the image file the card links to and check if it's in the input directory.
         image_file = Path(f"{params.inputDirectoryPath}/{card['image']}")
         # If it isn't, set the card's image to "" so that the Typst template doesn't try to use a file that doesn't exist.
+        if not image_file.exists():
+            card["image"] = ""
+            continue
         if not image_validation.is_image(image_file):
             card["image"] = ""
             continue

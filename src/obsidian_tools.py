@@ -37,6 +37,7 @@ class ObsidianPageData:
     content: Dict[str, str | dict] = field(init=False)  # type: ignore
     dataview_fields: Dict[str, List[str]] = field(init=False)
     images: List[str] = field(init=False)
+    tags: List[str] = field(init=False)
 
     def __init__(self, text):
         text_without_wikilinks = remove_wikilinks(text)
@@ -44,6 +45,9 @@ class ObsidianPageData:
         self.content = get_content(text_without_wikilinks)
         self.dataview_fields = get_dataview_fields(text_without_wikilinks)
         self.images = get_images(text)
+        if "tags" in self.frontmatter:
+            tags = self.frontmatter["tags"]
+            self.tags = [tag.split("/")[0] for tag in tags]
 
 
 def simplify_text(text: str) -> str:
@@ -148,3 +152,11 @@ def markdown_to_dict(text: str) -> ObsidianPageData:
         - `images`: A list of all embedded image filenames.
     """
     return ObsidianPageData(text)
+
+
+def replace_uncommon_characters(text: str) -> str:
+    """Replace uncommon characters with their common counterparts."""
+    text = text.replace("’", "'")
+    text = text.replace("“", '"')
+    text = text.replace("”", '"')
+    return text

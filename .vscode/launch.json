@@ -31,8 +31,8 @@
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "args": [
-                "test/files",
-                "data.yaml"
+                "in",
+                "rpg-cards-typst-templates/in/data.yaml"
             ]
         },
     ]
