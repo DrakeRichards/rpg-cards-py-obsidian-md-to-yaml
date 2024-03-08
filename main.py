@@ -9,6 +9,7 @@ import yaml
 import src.image_validation as image_validation
 import src.obsidian_rpg as obsidian_rpg
 import src.obsidian_tools as ot
+import src.typst
 
 
 def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
@@ -29,7 +30,7 @@ def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
     return [f"{directory_path}/{file}" for file in markdown_files]
 
 
-def parse_md_to_typst_card(filepath: str) -> obsidian_rpg.TypstCard:
+def parse_md_to_typst_card(filepath: str) -> src.typst.Card:
     """Parse an Obsidian markdown file into a Typst card.
 
     Args:
@@ -42,7 +43,7 @@ def parse_md_to_typst_card(filepath: str) -> obsidian_rpg.TypstCard:
         text: str = file.read()
         cleaned_text = ot.replace_uncommon_characters(text)
         page_object: obsidian_rpg.RpgData = obsidian_rpg.new_page(cleaned_text)
-        page_typst: obsidian_rpg.TypstCard = page_object.to_typst_card()
+        page_typst: src.typst.Card = page_object.to_typst_card()
         return page_typst
 
 

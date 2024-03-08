@@ -87,14 +87,14 @@ class TestObsidianTools(unittest.TestCase):
         alt_text_result = ot.remove_wikilinks(alt_text)
         self.assertEqual(alt_text_result, "This is a with alt text.")
 
-    def test_ObsidianPageData(self):
+    def test_obsidian_page_data(self):
         # Test the ObsidianPageData class.
         # Test 1: Test the ObsidianPageData class with a simple markdown file.
         # File is located in test/test.md
         # Expected Result: The class should return a dictionary with the expected structure.
         with open("test/files/test.md", "r") as file:
             text = file.read()
-            page = ot.ObsidianPageData(text)
+            page = ot.PageData(text)
             self.assertEqual(
                 page.content,
                 {

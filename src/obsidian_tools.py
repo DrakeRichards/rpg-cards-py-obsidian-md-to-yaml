@@ -12,7 +12,7 @@ import markdown_to_json
 
 
 @dataclass
-class ObsidianPageData:
+class PageData:
     """Dumps a Markdown string to a dict.
 
     Args:
@@ -132,7 +132,7 @@ def remove_wikilinks(text: str) -> str:
     return text
 
 
-def markdown_to_dict(text: str) -> ObsidianPageData:
+def markdown_to_dict(text: str) -> PageData:
     """Dumps a Markdown string to a dict.
 
     Args:
@@ -151,7 +151,7 @@ def markdown_to_dict(text: str) -> ObsidianPageData:
                 - `- key:: value`
         - `images`: A list of all embedded image filenames.
     """
-    return ObsidianPageData(text)
+    return PageData(text)
 
 
 def replace_uncommon_characters(text: str) -> str:
