@@ -23,6 +23,7 @@ class CardList:
 
     items: List[Item]
     title: str = ""
+    style: str = "plain"  # The style of the list as defined in the schema.
 
 
 @dataclass
