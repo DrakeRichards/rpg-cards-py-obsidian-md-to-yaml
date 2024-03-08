@@ -15,13 +15,6 @@ class PageTypes(Enum):
     UNKNOWN = "unknown"
 
 
-class ItemTypes(Enum):
-    WEAPON = "weapon"
-    ARMOR = "armor"
-    ITEM = "item"
-    UNKNOWN = "unknown"
-
-
 @dataclass
 class RpgData(ABC):
     """
@@ -34,6 +27,7 @@ class RpgData(ABC):
     content: dict[str, str] = field(default_factory=dict)
     frontmatter: dict[str, str] = field(default_factory=dict)
     dataview_fields: dict[str, list[str]] = field(default_factory=dict)
+    tags: list[str] = field(default_factory=list)
 
     def __init__(self, markdown_text: str):
         # Parse string to object
@@ -51,17 +45,15 @@ class RpgData(ABC):
         # Put the page's contents into a separate dict for ease of reference.
         self.content: dict[str, str] = page.content[self.name]  # type: ignore
 
-        # Items might not have an image, so I need to check for that.
+        # Optional checks
         if page.images:
             self.image = page.images[0]
-
-        # Dataview fields are optional, so I need to check for that.
         if page.dataview_fields:
             self.dataview_fields = page.dataview_fields
-
-        # Frontmatter is also optional, so I need to check for that.
         if page.frontmatter:
             self.frontmatter = page.frontmatter
+        if page.tags:
+            self.tags = page.tags
 
     @abstractmethod
     def to_typst_card(self) -> Card:
@@ -202,16 +194,31 @@ class Item(RpgData):
     cost: str = ""
     weight: str = ""
     properties: str = ""
+    damage: str = ""
+    range: str = ""
+    armor_class: str = ""
+    stealth: str = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # All items should have these fields.
         self.description = self.content["Description"]
         self.item_type = self.frontmatter["tags"][0]
         self.rarity = self.dataview_fields["rarity"][0]
         self.cost = self.dataview_fields["cost"][0]
         self.weight = self.dataview_fields["weight"][0]
         self.properties = self.dataview_fields["properties"][0]
+
+        # Optional fields
+        if "damage" in self.dataview_fields:
+            self.damage = self.dataview_fields["damage"][0]
+        if "range" in self.dataview_fields:
+            self.range = self.dataview_fields["range"][0]
+        if "armor-class" in self.dataview_fields:
+            self.armor_class = self.dataview_fields["armor-class"][0]
+        if "stealth" in self.dataview_fields:
+            self.stealth = self.dataview_fields["stealth"][0]
 
     def to_typst_card(self) -> Card:
         """
@@ -230,6 +237,7 @@ class Item(RpgData):
 
     def __get_lists(self) -> list[CardList]:
         lists = [
+            # Basic properties
             CardList(
                 items=[
                     CardList.Item(value=self.cost, name="Cost"),
@@ -239,33 +247,33 @@ class Item(RpgData):
                 title="",
             )
         ]
+        # Optional properties for weapons and armor.
+        # Some items might have these mixed in, so check for each of them individually.
+        if self.damage or self.range:
+            lists.append(
+                CardList(
+                    items=[
+                        CardList.Item(value=self.damage, name="Damage"),
+                        CardList.Item(value=self.range, name="Range"),
+                    ],
+                    title="",
+                )
+            )
+        if self.armor_class or self.stealth:
+            lists.append(
+                CardList(
+                    items=[
+                        CardList.Item(value=self.armor_class, name="Armor Class"),
+                        CardList.Item(value=self.stealth, name="Stealth"),
+                    ],
+                    title="",
+                )
+            )
         return lists
 
     def __get_subtext(self) -> str:
         subtext = f"{self.rarity} {self.item_type}"
         return subtext
-
-
-@dataclass
-class Weapon(Item):
-    """
-    Additional fields for weapons.
-    """
-
-    damage: str = ""
-    range: str = ""
-    # TODO: Implement the full class for weapons.
-
-
-@dataclass
-class Armor(Item):
-    """
-    Additional fields for armor.
-    """
-
-    armor_class: str = ""
-    stealth: str = ""
-    # TODO: Implement the full class for armor.
 
 
 @dataclass
@@ -322,35 +330,6 @@ def get_lower_keys(content: dict[str, str]) -> dict[str, str]:
     return lower_keys
 
 
-def __get_item_type(text: str) -> ItemTypes:
-    """
-    Identify the type of an Obsidian item based on its frontmatter tags.
-    """
-    page = PageData(text)
-    if "tags" not in page.frontmatter:
-        return ItemTypes.UNKNOWN
-    tags = page.frontmatter["tags"]
-    if "weapon" in tags:
-        return ItemTypes.WEAPON
-    elif "armor" in tags:
-        return ItemTypes.ARMOR
-    else:
-        return ItemTypes.ITEM
-
-
-def __new_item(text: str) -> Item:
-    item_type = __get_item_type(text)
-    match item_type:
-        case ItemTypes.WEAPON:
-            return Weapon(text)
-        case ItemTypes.ARMOR:
-            return Armor(text)
-        case ItemTypes.ITEM:
-            return Item(text)
-        case _:
-            raise ValueError(f"Item type {item_type} not recognized.")
-
-
 def get_page_type(text: str) -> PageTypes:
     """
     Identify the type of an Obsidian page based on its frontmatter tags.
@@ -385,7 +364,7 @@ def new_page(text: str) -> RpgData:
         case PageTypes.CHARACTER:
             return Character(text)
         case PageTypes.ITEM:
-            return __new_item(text)
+            return Item(text)
         case PageTypes.LOCATION:
             return Location(text)
         case _:
