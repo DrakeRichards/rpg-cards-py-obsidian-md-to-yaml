@@ -1,5 +1,7 @@
 import argparse
 from dataclasses import asdict
+from os import listdir
+from os.path import isfile, join
 from pathlib import Path
 from shutil import copy
 from typing import List
@@ -12,22 +14,20 @@ import src.obsidian_tools as ot
 import src.typst
 
 
-def get_files_with_extension(directory_path: str, extension: str) -> List[str]:
+def get_files_with_extension(directory: Path, extension: str) -> List[str]:
     """Get all files in a directory with a specific extension.
 
     Args:
-        directoryPath (str): The path to the directory.
+        directory (Path): The path to the directory.
         extension (str): The file extension, including the period.
 
     Returns:
         List[str]: A list of file paths.
     """
-    from os import listdir
-    from os.path import isfile, join
 
-    files = [f for f in listdir(directory_path) if isfile(join(directory_path, f))]
+    files = [f for f in listdir(directory) if isfile(join(directory, f))]
     markdown_files = [f for f in files if f.endswith(extension)]
-    return [f"{directory_path}/{file}" for file in markdown_files]
+    return [f"{directory}/{file}" for file in markdown_files]
 
 
 def parse_md_to_typst_card(filepath: str) -> src.typst.Card:
@@ -47,21 +47,46 @@ def parse_md_to_typst_card(filepath: str) -> src.typst.Card:
         return page_typst
 
 
-if __name__ == "__main__":
-    # Parser setup
+def parse_args():
     parser = argparse.ArgumentParser(
         description="Converts Obsidian markdown files to Typst YAML."
     )
     parser.add_argument(
-        "inputDirectoryPath",
+        "--input-markdown-directory",
         help="The path to the directory containing the markdown files.",
+        metavar="input_markdown_directory",
+        type=Path,
+        default="in",
     )
-    parser.add_argument("outputFilePath", help="The path to the output YAML file.")
-    params = parser.parse_args()
+    parser.add_argument(
+        "--input-image-directory",
+        help="The path to the directory containing the images.",
+        metavar="input_image_directory",
+        type=Path,
+        default="in",
+    )
+    parser.add_argument(
+        "--output-file-path",
+        help="The path to the output YAML file, including its extension.",
+        metavar="output_file_path",
+        type=Path,
+        default="data.yaml",
+    )
+    parser.add_argument(
+        "--output-image-directory",
+        help="The path to the output directory for the images.",
+        metavar="output_image_directory",
+        type=Path,
+        default=".",
+    )
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    params = parse_args()
 
     # Get all markdown files in the input directory
-    md_files = get_files_with_extension(params.inputDirectoryPath, ".md")
-    out_file_path = params.outputFilePath
+    md_files = get_files_with_extension(params.input_markdown_directory, ".md")
     typst_cards: dict[str, list[dict]] = {"cards": []}
     for file in md_files:
         try:
@@ -84,7 +109,7 @@ if __name__ == "__main__":
         if card["image"] == "":
             continue
         # Find the image file the card links to and check if it's in the input directory.
-        image_file = Path(f"{params.inputDirectoryPath}/{card['image']}")
+        image_file = Path(f"{params.input_image_directory}/{card['image']}")
         # If it isn't, set the card's image to "" so that the Typst template doesn't try to use a file that doesn't exist.
         if not image_file.exists():
             card["image"] = ""
@@ -98,10 +123,10 @@ if __name__ == "__main__":
             new_file: Path = image_validation.new_file_from_mimetype(image_file)
             card["image"] = new_file.name
         # Copy the image to the output directory.
-        dest_file: Path = Path(out_file_path).parent / card["image"]
+        dest_file: Path = params.output_image_directory / card["image"]
         copy(image_file, dest_file)
 
     # Write the Typst YAML to a file
-    with open(out_file_path, "w") as file:
+    with open(params.output_file_path, "w") as file:
         yaml.dump(data=typst_cards, stream=file, Dumper=yaml.SafeDumper)
-    print(f"Successfully wrote {out_file_path}.")
+    print(f"Successfully wrote {params.output_file_path}.")

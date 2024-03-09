@@ -12,7 +12,7 @@
 & 'venv/Scripts/activate'
 
 # Run the Python script to convert the markdown files to a single data.yaml file.
-python main.py 'in' 'rpg-cards-typst-templates/in/data.yaml'
+python main.py --input-markdown-directory 'in' --output-file-path 'rpg-cards-typst-templates/in/data.yaml'
 
 # Compile the Typst cards from the data.yaml file.
 typst compile --root 'rpg-cards-typst-templates' 'rpg-cards-typst-templates/src/cards.typ' 'out/cards.pdf'
