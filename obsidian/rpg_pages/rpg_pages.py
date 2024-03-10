@@ -4,15 +4,9 @@ from enum import Enum
 
 from dacite import from_dict
 
-from src.obsidian_tools import PageData
-from src.typst import Card, CardList
-
-
-class PageTypes(Enum):
-    CHARACTER = "character"
-    ITEM = "item"
-    LOCATION = "location"
-    UNKNOWN = "unknown"
+import typst
+from obsidian.parser import MarkdownData
+from utils.dict import get_lower_keys
 
 
 @dataclass
@@ -31,7 +25,7 @@ class RpgData(ABC):
 
     def __init__(self, markdown_text: str):
         # Parse string to object
-        page = PageData(markdown_text)
+        page = MarkdownData(markdown_text)
 
         # The name of the character should be H1, which is the key of the top-level element.
         self.name = list(page.content.keys())[0]
@@ -56,11 +50,143 @@ class RpgData(ABC):
             self.tags = page.tags
 
     @abstractmethod
-    def to_typst_card(self) -> Card:
+    def to_typst_card(self) -> typst.Card:
         """
         Converts the data to a TypstCard.
         """
         raise NotImplementedError("This method should be overridden in subclasses.")
+
+
+@dataclass
+class Item(RpgData):
+    """This is the format that my Obsidian item template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs."""
+
+    item_type: str = ""
+    rarity: str = ""
+    cost: str = ""
+    weight: str = ""
+    properties: str = ""
+    damage: str = ""
+    range: str = ""
+    armor_class: str = ""
+    stealth: str = ""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # All items should have these fields.
+        self.description = self.content["Description"]
+        self.item_type = self.frontmatter["tags"][0]
+        self.rarity = self.dataview_fields["rarity"][0]
+        self.cost = self.dataview_fields["cost"][0]
+        self.weight = self.dataview_fields["weight"][0]
+        self.properties = self.dataview_fields["properties"][0]
+
+        # Optional fields
+        if "damage" in self.dataview_fields:
+            self.damage = self.dataview_fields["damage"][0]
+        if "range" in self.dataview_fields:
+            self.range = self.dataview_fields["range"][0]
+        if "armor-class" in self.dataview_fields:
+            self.armor_class = self.dataview_fields["armor-class"][0]
+        if "stealth" in self.dataview_fields:
+            self.stealth = self.dataview_fields["stealth"][0]
+
+    def to_typst_card(self) -> typst.Card:
+        """
+        Converts the ObsidianItem to a TypstCard.
+        """
+        return typst.Card(
+            name=self.name,
+            body_text=self.description,
+            image=self.image,
+            name_subtext=self.__get_subtext(),
+            image_subtext="",
+            lists=self.__get_lists(),
+            banner_color="#195905",  # Lincoln Green
+            template="landscape-content-right",
+        )
+
+    def __get_lists(self) -> list[typst.CardList]:
+        lists = [
+            # Basic properties
+            typst.CardList(
+                items=[
+                    typst.CardList.Item(value=self.cost, name="Cost"),
+                    typst.CardList.Item(value=self.weight, name="Weight"),
+                    typst.CardList.Item(value=self.properties, name="Properties"),
+                ],
+                title="",
+            )
+        ]
+        # Optional properties for weapons and armor.
+        # Some items might have these mixed in, so check for each of them individually.
+        if self.damage or self.range:
+            lists.append(
+                typst.CardList(
+                    items=[
+                        typst.CardList.Item(value=self.damage, name="Damage"),
+                        typst.CardList.Item(value=self.range, name="Range"),
+                    ],
+                    title="",
+                )
+            )
+        if self.armor_class or self.stealth:
+            lists.append(
+                typst.CardList(
+                    items=[
+                        typst.CardList.Item(value=self.armor_class, name="Armor Class"),
+                        typst.CardList.Item(value=self.stealth, name="Stealth"),
+                    ],
+                    title="",
+                )
+            )
+        return lists
+
+    def __get_subtext(self) -> str:
+        subtext = f"{self.rarity} {self.item_type}"
+        return subtext
+
+
+@dataclass
+class Location(RpgData):
+    """
+    This is the format that my Obsidian location template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs.
+    """
+
+    occupants: str = ""
+    story_hook: str = ""
+    location: str = ""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.description = self.content["Description"]
+        self.occupants = self.content["Occupants"]
+        self.story_hook = self.content["Story Hook"]
+
+    def to_typst_card(self) -> typst.Card:
+        """
+        Converts the ObsidianLocation to a TypstCard.
+        """
+        return typst.Card(
+            name=self.name,
+            body_text=self.description,
+            image=self.image,
+            name_subtext=self.location,
+            image_subtext="",
+            lists=[
+                typst.CardList(
+                    items=[
+                        typst.CardList.Item(value=self.occupants, name="Occupants"),
+                        typst.CardList.Item(value=self.story_hook, name="Story Hook"),
+                    ],
+                    title="",
+                )
+            ],
+            banner_color="#191970",  # midnight blue
+            template="landscape-content-right",
+        )
 
 
 @dataclass
@@ -139,11 +265,11 @@ class Character(RpgData):
         self.group_title = self.dataview_fields["group-title"][0]
         self.group_rank = self.dataview_fields["group-rank"][0]
 
-    def to_typst_card(self) -> Card:
+    def to_typst_card(self) -> typst.Card:
         """
         Converts the ObsidianCharacter to a TypstCard.
         """
-        return Card(
+        return typst.Card(
             name=self.name,
             body_text=self.description.overview if self.description else "",
             image=self.image,
@@ -154,187 +280,51 @@ class Character(RpgData):
             template="landscape-content-left",
         )
 
-    def __get_lists(self) -> list[CardList]:
+    def __get_lists(self) -> list[typst.CardList]:
         lists = [
             self.__get_personality_list(),
             self.__get_secondary_list(),
         ]
         return lists
 
-    def __get_personality_list(self) -> CardList:
-        return CardList(
+    def __get_personality_list(self) -> typst.CardList:
+        return typst.CardList(
             items=[
-                CardList.Item(value=self.personality.quirk, name="Quirk"),
-                CardList.Item(value=self.personality.likes, name="Likes"),
-                CardList.Item(value=self.personality.dislikes, name="Dislikes"),
+                typst.CardList.Item(value=self.personality.quirk, name="Quirk"),
+                typst.CardList.Item(value=self.personality.likes, name="Likes"),
+                typst.CardList.Item(value=self.personality.dislikes, name="Dislikes"),
             ],
             title="",
         )
 
-    def __get_secondary_list(self) -> CardList:
+    def __get_secondary_list(self) -> typst.CardList:
         """
         Second list is an unordered and untitled list of location and group membership.
         """
-        second_list = CardList(items=[], title="")
+        second_list = typst.CardList(items=[], title="")
         if self.location:
-            location_item = CardList.Item(value=self.location, name="Location")
+            location_item = typst.CardList.Item(value=self.location, name="Location")
             second_list.items.append(location_item)
         if self.group_name != "":
-            group_name_item = CardList.Item(value=self.group_name, name="Member of")
+            group_name_item = typst.CardList.Item(
+                value=self.group_name, name="Member of"
+            )
             second_list.items.append(group_name_item)
         return second_list
 
 
-@dataclass
-class Item(RpgData):
-    """This is the format that my Obsidian item template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs."""
-
-    item_type: str = ""
-    rarity: str = ""
-    cost: str = ""
-    weight: str = ""
-    properties: str = ""
-    damage: str = ""
-    range: str = ""
-    armor_class: str = ""
-    stealth: str = ""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # All items should have these fields.
-        self.description = self.content["Description"]
-        self.item_type = self.frontmatter["tags"][0]
-        self.rarity = self.dataview_fields["rarity"][0]
-        self.cost = self.dataview_fields["cost"][0]
-        self.weight = self.dataview_fields["weight"][0]
-        self.properties = self.dataview_fields["properties"][0]
-
-        # Optional fields
-        if "damage" in self.dataview_fields:
-            self.damage = self.dataview_fields["damage"][0]
-        if "range" in self.dataview_fields:
-            self.range = self.dataview_fields["range"][0]
-        if "armor-class" in self.dataview_fields:
-            self.armor_class = self.dataview_fields["armor-class"][0]
-        if "stealth" in self.dataview_fields:
-            self.stealth = self.dataview_fields["stealth"][0]
-
-    def to_typst_card(self) -> Card:
-        """
-        Converts the ObsidianItem to a TypstCard.
-        """
-        return Card(
-            name=self.name,
-            body_text=self.description,
-            image=self.image,
-            name_subtext=self.__get_subtext(),
-            image_subtext="",
-            lists=self.__get_lists(),
-            banner_color="#195905",  # Lincoln Green
-            template="landscape-content-right",
-        )
-
-    def __get_lists(self) -> list[CardList]:
-        lists = [
-            # Basic properties
-            CardList(
-                items=[
-                    CardList.Item(value=self.cost, name="Cost"),
-                    CardList.Item(value=self.weight, name="Weight"),
-                    CardList.Item(value=self.properties, name="Properties"),
-                ],
-                title="",
-            )
-        ]
-        # Optional properties for weapons and armor.
-        # Some items might have these mixed in, so check for each of them individually.
-        if self.damage or self.range:
-            lists.append(
-                CardList(
-                    items=[
-                        CardList.Item(value=self.damage, name="Damage"),
-                        CardList.Item(value=self.range, name="Range"),
-                    ],
-                    title="",
-                )
-            )
-        if self.armor_class or self.stealth:
-            lists.append(
-                CardList(
-                    items=[
-                        CardList.Item(value=self.armor_class, name="Armor Class"),
-                        CardList.Item(value=self.stealth, name="Stealth"),
-                    ],
-                    title="",
-                )
-            )
-        return lists
-
-    def __get_subtext(self) -> str:
-        subtext = f"{self.rarity} {self.item_type}"
-        return subtext
-
-
-@dataclass
-class Location(RpgData):
-    """
-    This is the format that my Obsidian location template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs.
-    """
-
-    occupants: str = ""
-    story_hook: str = ""
-    location: str = ""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.description = self.content["Description"]
-        self.occupants = self.content["Occupants"]
-        self.story_hook = self.content["Story Hook"]
-
-    def to_typst_card(self) -> Card:
-        """
-        Converts the ObsidianLocation to a TypstCard.
-        """
-        return Card(
-            name=self.name,
-            body_text=self.description,
-            image=self.image,
-            name_subtext=self.location,
-            image_subtext="",
-            lists=[
-                CardList(
-                    items=[
-                        CardList.Item(value=self.occupants, name="Occupants"),
-                        CardList.Item(value=self.story_hook, name="Story Hook"),
-                    ],
-                    title="",
-                )
-            ],
-            banner_color="#191970",  # midnight blue
-            template="landscape-content-right",
-        )
-
-
-def get_lower_keys(content: dict[str, str]) -> dict[str, str]:
-    """Converts the keys of a dictionary to lowercase.
-
-    Args:
-        content (dict[str, str]): A dictionary.
-
-    Returns:
-        dict[str, str]: A dictionary with lowercase keys.
-    """
-    lower_keys = {k.lower(): v for k, v in content.items()}
-    return lower_keys
+class PageTypes(Enum):
+    CHARACTER = "character"
+    ITEM = "item"
+    LOCATION = "location"
+    UNKNOWN = "unknown"
 
 
 def get_page_type(text: str) -> PageTypes:
     """
     Identify the type of an Obsidian page based on its frontmatter tags.
     """
-    page = PageData(text)
+    page = MarkdownData(text)
     if len(page.tags) == 0:
         return PageTypes.UNKNOWN
     if "character" in page.tags:
