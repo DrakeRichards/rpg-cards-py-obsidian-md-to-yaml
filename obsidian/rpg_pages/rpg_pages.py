@@ -70,17 +70,15 @@ class Item(RpgData):
     range: str = ""
     armor_class: str = ""
     stealth: str = ""
+    traits: str = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # All items should have these fields.
         self.description = self.content["Description"]
-        self.item_type = self.frontmatter["tags"][0]
-        self.rarity = self.dataview_fields["rarity"][0]
         self.cost = self.dataview_fields["cost"][0]
         self.weight = self.dataview_fields["weight"][0]
-        self.properties = self.dataview_fields["properties"][0]
 
         # Optional fields
         if "damage" in self.dataview_fields:
@@ -92,6 +90,14 @@ class Item(RpgData):
         if "stealth" in self.dataview_fields:
             self.stealth = self.dataview_fields["stealth"][0]
 
+        # Compendium items vs homebrew items
+        if "traits" in self.dataview_fields:
+            self.traits = self.dataview_fields["traits"][0]
+            self.properties = ""
+        else:
+            self.traits = f"{self.item_type}, {self.rarity}"
+            self.properties = self.dataview_fields["properties"][0]
+
     def to_typst_card(self) -> typst.Card:
         """
         Converts the ObsidianItem to a TypstCard.
@@ -100,7 +106,7 @@ class Item(RpgData):
             name=self.name,
             body_text=self.description,
             image=self.image,
-            name_subtext=self.__get_subtext(),
+            name_subtext=self.traits,
             image_subtext="",
             lists=self.__get_lists(),
             banner_color="#195905",  # Lincoln Green
@@ -142,10 +148,6 @@ class Item(RpgData):
                 )
             )
         return lists
-
-    def __get_subtext(self) -> str:
-        subtext = f"{self.rarity} {self.item_type}"
-        return subtext
 
 
 @dataclass
