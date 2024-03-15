@@ -24,6 +24,15 @@ def remove_wikilinks(text: str) -> str:
     return text
 
 
+def remove_markdown_links(text: str) -> str:
+    """Remove markdown links from a string."""
+    pattern = __re.compile(r"\[(?P<link>.+?)\]\((?P<url>.+?)\)")
+    matches = pattern.finditer(text)
+    for match in matches:
+        text = text.replace(match.group(0), match.group("link"))
+    return text
+
+
 def replace_uncommon_characters(text: str) -> str:
     """Replace uncommon characters with their common counterparts."""
     text = text.replace("’", "'")

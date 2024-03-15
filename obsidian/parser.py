@@ -6,7 +6,12 @@ from typing import Dict, List
 import frontmatter as fm
 import markdown_to_json
 
-from utils.string import remove_wikilinks, simplify_text
+from utils.string import (
+    remove_markdown_links,
+    remove_wikilinks,
+    replace_uncommon_characters,
+    simplify_text,
+)
 
 
 @dataclass
@@ -33,37 +38,18 @@ class MarkdownData:
     """
 
     text: str
-    frontmatter: Dict[str, str] = field(init=False)
-    content: Dict[str, str | dict] = field(init=False)  # type: ignore
-    dataview_fields: Dict[str, List[str]] = field(init=False)
-    images: List[str] = field(init=False)
-    tags: List[str] = field(init=False)
 
-    def __init__(self, text):
-        text_without_wikilinks = remove_wikilinks(text)
-        self.frontmatter = self.__get_frontmatter(text_without_wikilinks)
-        self.content = self.__get_content(text_without_wikilinks)
-        self.dataview_fields = self.__get_dataview_fields(text_without_wikilinks)
-        self.images = self.__get_images(text)
-        if "tags" in self.frontmatter:
-            tags = self.frontmatter["tags"]
-            self.tags = [tag.split("/")[0] for tag in tags]
+    @property
+    def text_cleaned(self) -> str:
+        text = self.text
+        text = remove_wikilinks(text)
+        text = remove_markdown_links(text)
+        text = replace_uncommon_characters(text)
+        return text
 
-    def __get_content(self, text) -> Dict[str, str | dict]:  # type: ignore
-        # Pull the frontmatter into a dict.
-        parsed = fm.parse(text)
-
-        # Pull the rest of the non-frontmatter markdown content.
-        text_markdown = parsed[1]
-
-        # Parse the markdown into a dict.
-        # I convert the markdown to JSON and then back to a dict because this way I get a plain dict instead of an OrderedDict.
-        data_json = markdown_to_json.jsonify(text_markdown)
-        data = json.loads(data_json)
-        return data
-
-    def __get_frontmatter(self, text) -> Dict[str, str]:
-        parsed = fm.parse(text)
+    @property
+    def frontmatter(self) -> Dict[str, str]:
+        parsed = fm.parse(self.text_cleaned)
         frontmatter = parsed[0]
         # Some frontmatter values are enclosed in [[double brackets]], causing the frontmatter parser to interpret them as double-nested lists.
         # I want to convert these to strings.
@@ -73,11 +59,14 @@ class MarkdownData:
                     frontmatter[key] = value[0][0]
         return frontmatter
 
-    def __get_dataview_fields(self, text) -> Dict[str, List[str]]:
+    @property
+    def dataview_fields(self) -> Dict[str, List[str]]:
         dv_fields_pattern: re.Pattern[str] = re.compile(
             r"(?:[(\[]|^- )(?P<dvKey>[\w ]+):: (?:\[{0,2})(?:\w*\|)?(?P<dvValue>[^\[\]]*?)(?:[)\]]|$|\n)"
         )
-        matches: list[re.Match[str]] = list(dv_fields_pattern.finditer(text))
+        matches: list[re.Match[str]] = list(
+            dv_fields_pattern.finditer(self.text_cleaned)
+        )
         dv_fields: dict[str, list[str]] = {}
         if not matches:
             return dv_fields
@@ -94,12 +83,34 @@ class MarkdownData:
                 dv_fields[dv_key] = [dv_value]
         return dv_fields
 
-    def __get_images(self, text) -> List[str]:
+    @property
+    def images(self) -> List[str]:
         image_file_pattern = re.compile(r"\[\[(?P<filename>.*?\.(?:jpg|png|jpeg|webp))")
-        matches = list(image_file_pattern.finditer(text))
+        matches = list(image_file_pattern.finditer(self.text))
         images = []
         if not matches:
             return images
         for match in matches:
             images.append(match.group("filename"))
         return images
+
+    @property
+    def content(self) -> Dict[str, str | dict]:  # type: ignore
+        # Pull the frontmatter into a dict.
+        parsed = fm.parse(self.text_cleaned)
+
+        # Pull the rest of the non-frontmatter markdown content.
+        text_markdown = parsed[1]
+
+        # Parse the markdown into a dict.
+        # I convert the markdown to JSON and then back to a dict because this way I get a plain dict instead of an OrderedDict.
+        data_json = markdown_to_json.jsonify(text_markdown)
+        data = json.loads(data_json)
+        return data
+
+    @property
+    def tags(self) -> List[str]:
+        if "tags" in self.frontmatter:
+            tags = self.frontmatter["tags"]
+            return [tag.split("/")[0] for tag in tags]
+        return []
