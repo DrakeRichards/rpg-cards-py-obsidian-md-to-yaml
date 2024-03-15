@@ -31,8 +31,14 @@
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal",
             "args": [
-                "in",
-                "rpg-cards-typst-templates/in/data.yaml"
+                "--input-markdown-directory",
+                "in/markdown",
+                "--input-image-directory",
+                "in/images",
+                "--output-file-path",
+                "rpg-cards-typst-templates/in/data.yaml",
+                "--output-image-directory",
+                "rpg-cards-typst-templates/in"
             ]
         },
     ]
