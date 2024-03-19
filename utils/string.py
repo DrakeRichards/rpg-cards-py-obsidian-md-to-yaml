@@ -39,3 +39,7 @@ def replace_uncommon_characters(text: str) -> str:
     text = text.replace("“", '"')
     text = text.replace("”", '"')
     return text
+
+
+# TODO: Remove codeblocks from text.
+# TODO: Remove all markdown formatting from text to return a plain string. Used when the input file is just one big block of data under H1.

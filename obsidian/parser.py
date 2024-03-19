@@ -95,7 +95,12 @@ class MarkdownData:
         return images
 
     @property
-    def content(self) -> Dict[str, str | dict]:  # type: ignore
+    def headers(self) -> Dict[str, str | dict]:
+        """Parses all headers beneath the first H1 header into a dict.
+
+        Returns:
+            Dict[str, str | dict]: The keys are each header, and the value is the content beneath that header.
+        """
         # Pull the frontmatter into a dict.
         parsed = fm.parse(self.text_cleaned)
 
@@ -106,6 +111,29 @@ class MarkdownData:
         # I convert the markdown to JSON and then back to a dict because this way I get a plain dict instead of an OrderedDict.
         data_json = markdown_to_json.jsonify(text_markdown)
         data = json.loads(data_json)
+
+        # Return the data within the first H1 header.
+        first_key = list(data.keys())[0]
+        return data[first_key]
+
+    @property
+    def headers_all(self) -> Dict[str, str | dict]:
+        """Parses all headers into a dict, including the first H1 header. Not used by anything, but included for completeness.
+
+        Returns:
+            Dict[str, str | dict]: The keys are each header, and the value is the content beneath that header.
+        """
+        # Pull the frontmatter into a dict.
+        parsed = fm.parse(self.text_cleaned)
+
+        # Pull the rest of the non-frontmatter markdown content.
+        text_markdown = parsed[1]
+
+        # Parse the markdown into a dict.
+        # I convert the markdown to JSON and then back to a dict because this way I get a plain dict instead of an OrderedDict.
+        data_json = markdown_to_json.jsonify(text_markdown)
+        data = json.loads(data_json)
+
         return data
 
     @property

@@ -15,44 +15,38 @@ class RpgData(ABC):
     Base class for each of the types of Obsidian pages.
     """
 
-    name: str = ""
-    description: str = ""
-    image: str = ""
-    content: dict[str, str] = field(default_factory=dict)
-    frontmatter: dict[str, str] = field(default_factory=dict)
-    dataview_fields: dict[str, list[str]] = field(default_factory=dict)
-    tags: list[str] = field(default_factory=list)
+    input_data: MarkdownData | str
 
-    def __init__(self, markdown_text: str):
-        # Parse string to object
-        page = MarkdownData(markdown_text)
+    @property
+    def markdown_data(self) -> MarkdownData:
+        if isinstance(self.input_data, str):
+            return MarkdownData(self.input_data)
+        return self.input_data
 
+    @property
+    def name(self) -> str:
         # The name of the character should be H1, which is the key of the top-level element.
-        self.name = list(page.content.keys())[0]
+        return list(self.markdown_data.headers.keys())[0]
 
-        # Check whether H1 has any subheaders.
-        # If H1 has subheaders, then the name will be a key in the content dict.
-        # If it's a string, then it's just the description.
-        if isinstance(page.content[self.name], str):
-            self.description = page.content[self.name]  # type: ignore
-            # raise KeyError("H1 has no subheadings.")
+    @property
+    def description(self) -> str:
+        # There is a description header, and it's a string.
+        if "Description" in self.markdown_data.headers and isinstance(
+            self.markdown_data.headers["Description"], str
+        ):
+            return self.markdown_data.headers["Description"]
+        # There is no description header, but the top-level header's content is a string.
+        if self.name in self.markdown_data.headers.keys() and isinstance(
+            self.markdown_data.headers[self.name], str
+        ):
+            return self.markdown_data.headers[self.name]  # type: ignore
+        return ""
 
-        # Put the page's contents into a separate dict for ease of reference.
-        self.content: dict[str, str] = page.content[self.name]  # type: ignore
-
-        # Optional checks
-        if page.images:
-            self.image = page.images[0]
-        if page.dataview_fields:
-            self.dataview_fields = page.dataview_fields
-        else:
-            self.dataview_fields = {}
-        if page.frontmatter:
-            self.frontmatter = page.frontmatter
-        else:
-            self.frontmatter = {}
-        if page.tags:
-            self.tags = page.tags
+    @property
+    def image(self) -> str:
+        if self.markdown_data.images:
+            return self.markdown_data.images[0]
+        return ""
 
     @abstractmethod
     def to_typst_card(self) -> typst.Card:
@@ -66,55 +60,71 @@ class RpgData(ABC):
 class Item(RpgData):
     """This is the format that my Obsidian item template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs."""
 
-    item_type: str = ""  # Wondrous item, dagger, armor, etc.
-    rarity: str = ""  # Common, uncommon, rare, very rare, legendary, artifact
-    cost: str = ""  # gp, sp, cp, etc.
-    weight: str = ""  # lb, oz, etc.
-    properties: str = ""  # finesse, light, heavy, etc.
-    damage: str = ""  # 1d4 S, 1d6 P, etc.
-    range: str = ""  # 20/60, 30/120, etc.
-    armor_class: str = ""  # 12 + Dex modifier, etc.
-    stealth: str = ""  # disadvantage, advantage, etc.
-    traits: str = ""  # item type, rarity, magic level, attunement requirements
-    magic_level: str = ""  # minor, major, artifact
+    @property
+    def cost(self) -> str:
+        if "cost" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["cost"][0]
+        return ""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @property
+    def weight(self) -> str:
+        if "weight" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["weight"][0]
+        return ""
 
-        # All items should have these fields, but we need to check for them anyway since it's a dict.
-        if "Description" in self.content:
-            self.description = self.content["Description"]
-        else:
-            self.description = ""
-        if "cost" in self.dataview_fields:
-            self.cost = self.dataview_fields["cost"][0]
-        else:
-            self.cost = ""
-        if "weight" in self.dataview_fields:
-            self.weight = self.dataview_fields["weight"][0]
-        else:
-            self.weight = ""
+    @property
+    def damage(self) -> str:
+        if "damage" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["damage"][0]
+        return ""
 
-        # Optional fields
-        if "damage" in self.dataview_fields:
-            self.damage = self.dataview_fields["damage"][0]
-        if "range" in self.dataview_fields:
-            self.range = self.dataview_fields["range"][0]
-        if "armor-class" in self.dataview_fields:
-            self.armor_class = self.dataview_fields["armor-class"][0]
-        if "stealth" in self.dataview_fields:
-            self.stealth = self.dataview_fields["stealth"][0]
-        if "magic-level" in self.dataview_fields:
-            self.magic_level = self.dataview_fields["magic-level"][0]
+    @property
+    def range(self) -> str:
+        if "range" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["range"][0]
+        return ""
 
-        # "Traits" is the key that I used on compendium items to store the item type, rarity, magic level, and attunement requirements.
-        # On custom items, these are separate fields.
-        # Compendium items
-        if "traits" in self.dataview_fields:
-            self.traits = self.dataview_fields["traits"][0]
-        # Custom items
-        if "properties" in self.dataview_fields:
-            self.properties = self.dataview_fields["properties"][0]
+    @property
+    def armor_class(self) -> str:
+        if "armor-class" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["armor-class"][0]
+        return ""
+
+    @property
+    def stealth(self) -> str:
+        if "stealth" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["stealth"][0]
+        return ""
+
+    @property
+    def magic_level(self) -> str:
+        if "magic-level" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["magic-level"][0]
+        return ""
+
+    @property
+    def traits(self) -> str:
+        if "traits" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["traits"][0]
+        return ""
+
+    @property
+    def properties(self) -> str:
+        if "properties" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["properties"][0]
+        return ""
+
+    @property
+    def rarity(self) -> str:
+        if "rarity" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["rarity"][0]
+        return ""
+
+    @property
+    def item_type(self) -> str:
+        if "type" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["type"][0]
+        return ""
 
     def to_typst_card(self) -> typst.Card:
         """
@@ -223,20 +233,27 @@ class Location(RpgData):
     This is the format that my Obsidian location template uses. It's a dataclass so that I can easily convert it to a dictionary for exporting to other programs.
     """
 
-    occupants: str = ""
-    story_hook: str = ""
-    location: str = ""
+    @property
+    def occupants(self) -> str:
+        if "Occupants" in self.markdown_data.headers and isinstance(
+            self.markdown_data.headers["Occupants"], str
+        ):
+            return self.markdown_data.headers["Occupants"]
+        return ""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @property
+    def story_hook(self) -> str:
+        if "Story Hook" in self.markdown_data.headers and isinstance(
+            self.markdown_data.headers["Story Hook"], str
+        ):
+            return self.markdown_data.headers["Story Hook"]
+        return ""
 
-        self.description = self.__get_description()
-        self.occupants = (
-            self.content["Occupants"] if "Occupants" in self.content else ""
-        )
-        self.story_hook = (
-            self.content["Story Hook"] if "Story Hook" in self.content else ""
-        )
+    @property
+    def location(self) -> str:
+        if "location" in self.markdown_data.frontmatter:
+            return self.markdown_data.frontmatter["location"]
+        return ""
 
     def to_typst_card(self) -> typst.Card:
         """
@@ -253,27 +270,23 @@ class Location(RpgData):
             template="landscape-content-right",
         )
 
-    def __get_description(self) -> str:
-        """
-        Returns the description of the location.
-        """
-        if self.description:
-            return self.description
-        if "Description" in self.content:
-            return self.content["Description"]
-        if isinstance(self.content["Description"], str):
-            return self.content["Description"]
-        return ""
-
     def __get_lists(self) -> list[typst.CardList]:
         list_items = []
-        if "Occupants" in self.content:
+        if "Occupants" in self.markdown_data.headers and isinstance(
+            self.markdown_data.headers["Occupants"], str
+        ):
             list_items.append(
-                typst.CardList.Item(value=self.content["Occupants"], name="Occupants")
+                typst.CardList.Item(
+                    value=self.markdown_data.headers["Occupants"], name="Occupants"
+                )
             )
-        if "Story Hook" in self.content:
+        if "Story Hook" in self.markdown_data.headers and isinstance(
+            self.markdown_data.headers["Story Hook"], str
+        ):
             list_items.append(
-                typst.CardList.Item(value=self.content["Story Hook"], name="Rumor")
+                typst.CardList.Item(
+                    value=self.markdown_data.headers["Story Hook"], name="Rumor"
+                )
             )
         return [typst.CardList(items=list_items, title="")]
 
@@ -305,60 +318,107 @@ class Character(RpgData):
         goals: str = ""
         frustration: str = ""
 
-    name: str = ""
-    physical_info: PhysicalInfo = field(default_factory=PhysicalInfo)
-    description: Description = field(default_factory=Description)
-    personality: Personality = field(default_factory=Personality)
-    hooks: Hooks = field(default_factory=Hooks)
-    image: str = ""
-    location: str = ""
-    group_name: str = ""
-    group_title: str = ""
-    group_rank: str = ""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.physical_info = Character.PhysicalInfo(
+    @property
+    def physical_info(self) -> PhysicalInfo:
+        return Character.PhysicalInfo(
             gender=(
-                self.dataview_fields["gender"][0]
-                if "gender" in self.dataview_fields
+                self.markdown_data.dataview_fields["gender"][0]
+                if "gender" in self.markdown_data.dataview_fields
                 else ""
             ),
             race=(
-                self.dataview_fields["race"][0]
-                if "race" in self.dataview_fields
+                self.markdown_data.dataview_fields["race"][0]
+                if "race" in self.markdown_data.dataview_fields
                 else ""
             ),
             job=(
-                self.dataview_fields["class"][0]
-                if "class" in self.dataview_fields
+                self.markdown_data.dataview_fields["class"][0]
+                if "class" in self.markdown_data.dataview_fields
                 else ""
             ),
         )
-        # If the Description, Personality, or Hooks fields are strings, then fill in the overview/quirk/goals fields.
-        self.description = self.__get_description()
-        self.personality = self.__get_personality()
-        self.hooks = self.__get_hooks()
-        # Fill in the rest of the fields
-        self.location = (
-            self.frontmatter["location"] if "location" in self.frontmatter else ""
-        )
-        self.group_name = (
-            self.dataview_fields["group-name"][0]
-            if "group-name" in self.dataview_fields
-            else ""
-        )
-        self.group_title = (
-            self.dataview_fields["group-title"][0]
-            if "group-title" in self.dataview_fields
-            else ""
-        )
-        self.group_rank = (
-            self.dataview_fields["group-rank"][0]
-            if "group-rank" in self.dataview_fields
-            else ""
-        )
+
+    @property
+    def description(self) -> Description:
+        """
+        Returns the description of the character.
+        """
+        # If there is a header for "Description" in the content...
+        if "Description" in self.markdown_data.headers:
+            # If the content of that header is a string, then it's the overview.
+            if isinstance(self.markdown_data.headers["Description"], str):
+                return Character.Description(
+                    overview=self.markdown_data.headers["Description"]
+                )
+            # If it's a dict, then it's the full description.
+            return from_dict(
+                data_class=Character.Description,
+                data=get_lower_keys(self.markdown_data.headers["Description"]),
+            )
+        # If there is no header for "Description" in the content, then just return an empty description.
+        return Character.Description()
+
+    @property
+    def personality(self) -> Personality:
+        """
+        Returns the personality of the character.
+        """
+        # If there is a header for "Personality" in the content...
+        if "Personality" in self.markdown_data.headers:
+            # If the content of that header is a string, then it's the quirk.
+            if isinstance(self.markdown_data.headers["Personality"], str):
+                return Character.Personality(
+                    quirk=self.markdown_data.headers["Personality"]
+                )
+            # If it's a dict, then it's the full personality.
+            return from_dict(
+                data_class=Character.Personality,
+                data=get_lower_keys(self.markdown_data.headers["Personality"]),
+            )
+        # If there is no header for "Personality" in the content, then just return an empty personality.
+        return Character.Personality()
+
+    @property
+    def hooks(self) -> Hooks:
+        """
+        Returns the hooks of the character.
+        """
+        # If there is a header for "Hooks" in the content...
+        if "Hooks" in self.markdown_data.headers:
+            # If the content of that header is a string, then it's the goals.
+            if isinstance(self.markdown_data.headers["Hooks"], str):
+                return Character.Hooks(goals=self.markdown_data.headers["Hooks"])
+            # If it's a dict, then it's the full hooks.
+            return from_dict(
+                data_class=Character.Hooks,
+                data=get_lower_keys(self.markdown_data.headers["Hooks"]),
+            )
+        # If there is no header for "Hooks" in the content, then just return an empty hooks.
+        return Character.Hooks()
+
+    @property
+    def location(self) -> str:
+        if "location" in self.markdown_data.frontmatter:
+            return self.markdown_data.frontmatter["location"]
+        return ""
+
+    @property
+    def group_name(self) -> str:
+        if "group-name" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["group-name"][0]
+        return ""
+
+    @property
+    def group_title(self) -> str:
+        if "group-title" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["group-title"][0]
+        return ""
+
+    @property
+    def group_rank(self) -> str:
+        if "group-rank" in self.markdown_data.dataview_fields:
+            return self.markdown_data.dataview_fields["group-rank"][0]
+        return ""
 
     def to_typst_card(self) -> typst.Card:
         """
@@ -413,60 +473,6 @@ class Character(RpgData):
             second_list.items.append(group_name_item)
         return second_list
 
-    def __get_description(self) -> Description:
-        """
-        Returns the description of the character.
-        """
-        # If it already exists for some reason, just return it.
-        if self.description and isinstance(self.description, Character.Description):
-            return self.description
-        # If there is a header for "Description" in the content...
-        if "Description" in self.content:
-            # If the content of that header is a string, then it's the overview.
-            if isinstance(self.content["Description"], str):
-                return Character.Description(overview=self.content["Description"])
-            # If it's a dict, then it's the full description.
-            return from_dict(
-                data_class=Character.Description,
-                data=get_lower_keys(self.content["Description"]),
-            )
-        # If there is no header for "Description" in the content, then just return an empty description.
-        return Character.Description()
-
-    def __get_personality(self) -> Personality:
-        """
-        Returns the personality of the character.
-        """
-        # If there is a header for "Personality" in the content...
-        if "Personality" in self.content:
-            # If the content of that header is a string, then it's the quirk.
-            if isinstance(self.content["Personality"], str):
-                return Character.Personality(quirk=self.content["Personality"])
-            # If it's a dict, then it's the full personality.
-            return from_dict(
-                data_class=Character.Personality,
-                data=get_lower_keys(self.content["Personality"]),
-            )
-        # If there is no header for "Personality" in the content, then just return an empty personality.
-        return Character.Personality()
-
-    def __get_hooks(self) -> Hooks:
-        """
-        Returns the hooks of the character.
-        """
-        # If there is a header for "Hooks" in the content...
-        if "Hooks" in self.content:
-            # If the content of that header is a string, then it's the goals.
-            if isinstance(self.content["Hooks"], str):
-                return Character.Hooks(goals=self.content["Hooks"])
-            # If it's a dict, then it's the full hooks.
-            return from_dict(
-                data_class=Character.Hooks,
-                data=get_lower_keys(self.content["Hooks"]),
-            )
-        # If there is no header for "Hooks" in the content, then just return an empty hooks.
-        return Character.Hooks()
-
 
 class PageTypes(Enum):
     CHARACTER = "character"
@@ -505,12 +511,13 @@ def new_page(text: str) -> RpgData:
         RpgData: An Obsidian page object.
     """
     page_type = get_page_type(text)
+    markdown_data = MarkdownData(text)
     match page_type:
         case PageTypes.CHARACTER:
-            return Character(text)
+            return Character(markdown_data)
         case PageTypes.ITEM:
-            return Item(text)
+            return Item(markdown_data)
         case PageTypes.LOCATION:
-            return Location(text)
+            return Location(markdown_data)
         case _:
             raise ValueError(f"Page type {page_type} not recognized.")

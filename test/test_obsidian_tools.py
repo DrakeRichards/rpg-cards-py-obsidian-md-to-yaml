@@ -52,7 +52,7 @@ class TestObsidianTools(unittest.TestCase):
         # File is located in test/test.md
         # Expected Result: The function should return a dictionary with the expected structure.
         self.assertEqual(
-            self.data.content,
+            self.data.headers_all,
             {
                 "Example Header 1": {
                     "Example Header 2": {
@@ -91,7 +91,7 @@ class TestObsidianTools(unittest.TestCase):
         # File is located in test/test.md
         # Expected Result: The class should return a dictionary with the expected structure.
         self.assertEqual(
-            self.data.content,
+            self.data.headers_all,
             {
                 "Example Header 1": {
                     "Example Header 2": {
