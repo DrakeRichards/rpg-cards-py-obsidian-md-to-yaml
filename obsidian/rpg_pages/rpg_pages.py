@@ -26,7 +26,7 @@ class RpgData(ABC):
     @property
     def name(self) -> str:
         # The name of the character should be H1, which is the key of the top-level element.
-        return list(self.markdown_data.headers.keys())[0]
+        return list(self.markdown_data.headers_all.keys())[0]
 
     @property
     def description(self) -> str:
