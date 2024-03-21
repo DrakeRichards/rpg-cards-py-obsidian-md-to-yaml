@@ -9,8 +9,8 @@ from typing import List
 import yaml
 
 import typst as typst
-import utils.image as image
-import utils.string as string_utils
+import utils.image as iutil
+import utils.string as sutil
 from obsidian import rpg_pages
 
 
@@ -41,8 +41,8 @@ def parse_md_to_typst_card(filepath: str) -> typst.Card:
     """
     with open(filepath, "r") as file:
         text: str = file.read()
-        cleaned_text = string_utils.replace_uncommon_characters(text)
-        page_object: rpg_pages.RpgData = rpg_pages.new_page(cleaned_text)
+        cleaned_text = sutil.replace_uncommon_characters(text)
+        page_object: rpg_pages.rpg_data_abc.RpgData = rpg_pages.new_page(cleaned_text)
         page_typst: typst.Card = page_object.to_typst_card()
         return page_typst
 
@@ -114,13 +114,13 @@ if __name__ == "__main__":
         if not image_file.exists():
             card["image"] = ""
             continue
-        if not image.is_image(image_file):
+        if not iutil.is_image(image_file):
             card["image"] = ""
             continue
         # If it is, check whether its extension matches its MIME type.
-        if not image.does_extension_match(image_file):
+        if not iutil.does_extension_match(image_file):
             # If it doesn't, convert the image to the correct format.
-            new_file: Path = image.new_file_from_mimetype(image_file)
+            new_file: Path = iutil.new_file_from_mimetype(image_file)
             card["image"] = new_file.name
         # Copy the image to the output directory.
         dest_file: Path = params.output_image_directory / card["image"]

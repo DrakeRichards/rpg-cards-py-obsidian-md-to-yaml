@@ -1,7 +1,7 @@
 import unittest
 
 import obsidian.parser as op
-import utils.string as string_utils
+import utils.string as sutil
 
 
 class TestObsidianTools(unittest.TestCase):
@@ -68,21 +68,21 @@ class TestObsidianTools(unittest.TestCase):
         # Test 1: Test the remove_wikilinks function with a simple markdown string.
         # Expected Result: The function should return a string with the expected structure.
         text = "This is a [[wikilink]]."
-        result = string_utils.remove_wikilinks(text)
+        result = sutil.remove_wikilinks(text)
         self.assertEqual(result, "This is a wikilink.")
         # Test 2: Test the remove_wikilinks function with a markdown string that contains an embedded wikilink.
         embedded_text = "This is an ![[embedded wikilink]]."
-        embedded_text_result = string_utils.remove_wikilinks(embedded_text)
+        embedded_text_result = sutil.remove_wikilinks(embedded_text)
         self.assertEqual(embedded_text_result, "This is an ![[embedded wikilink]].")
         # Test 3: Test the remove_wikilinks function with a markdown string that contains multiple wikilinks.
         multiple_text = "This is a [[wikilink]]. This is another [[wikilink]]."
-        multiple_text_result = string_utils.remove_wikilinks(multiple_text)
+        multiple_text_result = sutil.remove_wikilinks(multiple_text)
         self.assertEqual(
             multiple_text_result, "This is a wikilink. This is another wikilink."
         )
         # Test 4: Test the remove_wikilinks function with a markdown string that contains a wikilink with alt text.
         alt_text = "This is a [[wikilink|with alt text]]."
-        alt_text_result = string_utils.remove_wikilinks(alt_text)
+        alt_text_result = sutil.remove_wikilinks(alt_text)
         self.assertEqual(alt_text_result, "This is a with alt text.")
 
     def test_obsidian_page_data(self):

@@ -1,12 +1,12 @@
-from .rpg_pages import (
-    Character,
-    Item,
-    Location,
+from .character import Character
+from .item import Item
+from .location import Location
+from .pages import (
     PageTypes,
-    RpgData,
     get_page_type,
     new_page,
 )
+from .rpg_data_abc import RpgData
 
 __all__ = [
     "Character",

@@ -6,24 +6,17 @@ import yaml
 from attr import dataclass
 from jsonschema import ValidationError
 
-import obsidian
+import obsidian.rpg_pages as pages
 import typst
 
 
 class TestCard(unittest.TestCase):
     # Tests to determine if we can generate a data.yaml file from each type of markdown file.
-    # 1. Properly identify a given markdown file as the appropriate type.
-    # 2. Generate an RpgData object from a markdown string.
-    # 3. Generate a Typst Card object from an RpgData object.
-    # 4. Validate the Typst Card object against the rpg-cards-typst schema.
-    # 5. Generate a data.yaml file from the Typst Card object.
-    # 6. Validate the data.yaml file against the rpg-cards-typst schema.
-
     def setUp(self) -> None:
 
         @dataclass
         class InputFile:
-            type: obsidian.rpg_pages.PageTypes
+            type: pages.PageTypes
             path: Path
 
         @dataclass
@@ -31,7 +24,7 @@ class TestCard(unittest.TestCase):
             input_file: InputFile
 
             @property
-            def type(self) -> obsidian.rpg_pages.PageTypes:
+            def type(self) -> pages.PageTypes:
                 return self.input_file.type
 
             @property
@@ -43,8 +36,8 @@ class TestCard(unittest.TestCase):
                 return self.input_file.path.read_text()
 
             @property
-            def page_data(self) -> obsidian.rpg_pages.RpgData:
-                return obsidian.rpg_pages.new_page(self.markdown_text)
+            def page_data(self) -> pages.rpg_data_abc.RpgData:
+                return pages.new_page(self.markdown_text)
 
             @property
             def card_obj(self) -> typst.Card:
@@ -63,13 +56,9 @@ class TestCard(unittest.TestCase):
                 return yaml.dump(self.cards)
 
         self.input_files: list[InputFile] = [
-            InputFile(
-                obsidian.rpg_pages.PageTypes.CHARACTER, Path("test/files/character.md")
-            ),
-            InputFile(
-                obsidian.rpg_pages.PageTypes.LOCATION, Path("test/files/location.md")
-            ),
-            InputFile(obsidian.rpg_pages.PageTypes.ITEM, Path("test/files/item.md")),
+            InputFile(pages.PageTypes.CHARACTER, Path("test/files/character.md")),
+            InputFile(pages.PageTypes.LOCATION, Path("test/files/location.md")),
+            InputFile(pages.PageTypes.ITEM, Path("test/files/item.md")),
         ]
 
         self.testing_files: list[TestingFile] = [
@@ -81,9 +70,7 @@ class TestCard(unittest.TestCase):
         # Expected Result: The function should return the correct PageType.
         for testing_file in self.testing_files:
             with self.subTest(input_file=testing_file):
-                page_type = obsidian.rpg_pages.get_page_type(
-                    testing_file.path.read_text()
-                )
+                page_type = pages.get_page_type(testing_file.path.read_text())
                 self.assertEqual(page_type, testing_file.type)
 
     def test_generate_obsidian_object(self):
@@ -92,7 +79,7 @@ class TestCard(unittest.TestCase):
         for testing_file in self.testing_files:
             with self.subTest(input_file=testing_file):
                 self.assertIsInstance(
-                    testing_file.page_data, obsidian.rpg_pages.RpgData
+                    testing_file.page_data, pages.rpg_data_abc.RpgData
                 )
 
     def test_generate_typst_character(self):
@@ -134,7 +121,7 @@ class TestCard(unittest.TestCase):
         for testing_file in self.testing_files:
             with self.subTest(input_file=testing_file):
                 match testing_file.type:
-                    case obsidian.rpg_pages.PageTypes.CHARACTER:
+                    case pages.PageTypes.CHARACTER:
                         self.assertEqual(
                             testing_file.card_obj.name, "Bob the Barbarian"
                         )
@@ -153,7 +140,7 @@ class TestCard(unittest.TestCase):
                         self.assertEqual(
                             testing_file.card_obj.template, "landscape-content-left"
                         )
-                    case obsidian.rpg_pages.PageTypes.LOCATION:
+                    case pages.PageTypes.LOCATION:
                         self.assertEqual(
                             testing_file.card_obj.name, "Spiceleaf Library"
                         )
@@ -170,7 +157,7 @@ class TestCard(unittest.TestCase):
                         self.assertEqual(
                             testing_file.card_obj.template, "landscape-content-right"
                         )
-                    case obsidian.rpg_pages.PageTypes.ITEM:
+                    case pages.PageTypes.ITEM:
                         self.assertEqual(
                             testing_file.card_obj.name, "Dagger Of Trollsbane +1"
                         )
@@ -195,10 +182,10 @@ class EdgeCases(unittest.TestCase):
         # Expected Result: The function should return an ObsidianCharacter object, and the extra headers should be ignored.
         character_markdown_file: Path = Path("test/files/character-extra-headers.md")
         character_markdown: str = character_markdown_file.read_text()
-        character_data: obsidian.rpg_pages.Character = obsidian.rpg_pages.Character(
+        character_data: pages.character.Character = pages.character.Character(
             character_markdown
         )
-        self.assertIsInstance(character_data, obsidian.rpg_pages.Character)
+        self.assertIsInstance(character_data, pages.character.Character)
 
     # TODO: Single-header input files for each card type.
 
